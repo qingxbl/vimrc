@@ -52,9 +52,6 @@
 [submodule "vimfiles/bundle/hexman.vim"]
 	path = vimfiles/bundle/hexman.vim
 	url = https://github.com/vim-scripts/hexman.vim.git
-[submodule "vimfiles/bundle/vim-plugin-minibufexpl"]
-	path = vimfiles/bundle/vim-plugin-minibufexpl
-	url = https://github.com/techlivezheng/vim-plugin-minibufexpl.git
 [submodule "vimfiles/bundle/nerdcommenter"]
 	path = vimfiles/bundle/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
@@ -76,3 +73,6 @@
 [submodule "vimfiles/bundle/vcscommand"]
 	path = vimfiles/bundle/vcscommand
 	url = git://repo.or.cz/vcscommand
+[submodule "vimfiles/bundle/ctrlp.vim"]
+	path = vimfiles/bundle/ctrlp.vim
+	url = https://github.com/kien/ctrlp.vim

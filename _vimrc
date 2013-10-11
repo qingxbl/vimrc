@@ -79,7 +79,7 @@ set statusline+=%= " right align
 set statusline+=\ 0x%-8B  " current char
 set statusline+=\ %-12.(%l,%c%V%)\ %P " offset
 
-if globpath(&rtp, "plugin/vimbuddy.vim") != ''
+if globpath(&rtp, "bundle/vimbuddy.vim/plugin/vimbuddy.vim") != ''
     set statusline+=\ %{VimBuddy()} " vim buddy
 endif
 
@@ -111,7 +111,7 @@ if has('gui_running') " {{{2
     if has('win32')
         silent! set gfn=Consolas:h10:cANSI
         "silent! set gfw=YaHei_Consolas_Hybrid:h10:cGB2312
-        exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
+        exec 'set gfw='.iconv('Consolas', 'utf8', 'gbk').':h9:cGB2312'
     else
         "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
         set gfn=Monospace\ 9
@@ -181,7 +181,7 @@ if has('eval')
 
     " mapleader value {{{3
 
-    let mapleader = ","
+    " let mapleader = ","
 
     function! s:globfirst(pattern) " {{{3
         return simplify(split(glob(a:pattern), '\n', 1)[0])
@@ -458,6 +458,7 @@ endif
 " Full GUI {{{3
 
 if has('gui_running')
+    set go-=e
     let s:has_mt = glob("$VIM/_fullscreen") == "" && glob("$HOME/.vim/_fullscreen") == ""
     if s:has_mt
         set go+=mT
@@ -802,6 +803,9 @@ map <M-S-K> <C-W>K
 map <M-S-H> <C-W>H
 map <M-S-L> <C-W>L
 
+" folder changing {{{3
+
+map <leader>cd :cd%:p:h<cr>
 
 " save {{{3
 
@@ -912,49 +916,49 @@ let g:EasyGrepCommand = 1
 
 " fuzzyfinder {{{2
 
-let g:fuf_modesDisable = []
-let g:fuf_mrufile_maxItem = 400
-let g:fuf_mrucmd_maxItem = 400
-nnoremap <silent> <leader>s,     :FufBufferTag<CR>
-vnoremap <silent> <leader>s,     :FufBufferTagWithSelectedText!<CR>
-nnoremap <silent> <leader>s.     :FufBufferTagAll<CR>
-vnoremap <silent> <leader>s.     :FufBufferTagAllWithSelectedText!<CR>
-nnoremap <silent> <leader>s<     :FufBufferTag!<CR>
-vnoremap <silent> <leader>s<     :FufBufferTagWithSelectedText<CR>
-nnoremap <silent> <leader>s>     :FufBufferTagAll!<CR>
-vnoremap <silent> <leader>s>     :FufBufferTagAllWithSelectedText<CR>
-nnoremap <silent> <leader>s]     :FufBufferTagAllWithCursorWord!<CR>
-nnoremap <silent> <leader>s<C-]> :FufTagWithCursorWord!<CR>
-nnoremap <silent> <leader>s}     :FufBufferTagWithCursorWord!<CR>
-nnoremap <silent> <leader>sd     :FufDirWithCurrentBufferDir<CR>
-nnoremap <silent> <leader>sD     :FufDirWithFullCwd<CR>
-nnoremap <silent> <leader>s<C-d> :FufDir<CR>
-nnoremap <silent> <leader>se     :FufEditDataFile<CR>
-nnoremap <silent> <leader>sG     :FufTaggedFile!<CR>
-nnoremap <silent> <leader>sg     :FufTaggedFile<CR>
-nnoremap <silent> <leader>sh     :FufHelp<CR>
-nnoremap <silent> <leader>si     :FufBookmarkDir<CR>
-nnoremap <silent> <leader>s<C-i> :FufBookmarkDirAdd<CR>
-nnoremap <silent> <leader>sj     :FufBuffer<CR>
-nnoremap <silent> <leader>sk     :FufFileWithCurrentBufferDir<CR>
-nnoremap <silent> <leader>sK     :FufFileWithFullCwd<CR>
-nnoremap <silent> <leader>s<C-k> :FufFile<CR>
-nnoremap <silent> <leader>sl     :FufCoverageFileChange<CR>
-nnoremap <silent> <leader>sL     :FufCoverageFileChange<CR>
-nnoremap <silent> <leader>s<C-l> :FufCoverageFileRegister<CR>
-nnoremap <silent> <leader>sm     :FufMruCmd<CR>
-nnoremap <silent> <leader>sn     :FufMruFile<CR>
-nnoremap <silent> <leader>sN     :FufMruFileInCwd<CR>
-nnoremap <silent> <leader>so     :FufJumpList<CR>
-nnoremap <silent> <leader>sp     :FufChangeList<CR>
-nnoremap <silent> <leader>sq     :FufQuickfix<CR>
-nnoremap <silent> <leader>sr     :FufRenewCache<CR>
-nnoremap <silent> <leader>sT     :FufTag!<CR>
-nnoremap <silent> <leader>st     :FufTag<CR>
-nnoremap <silent> <leader>su     :FufBookmarkFile<CR>
-nnoremap <silent> <leader>s<C-u> :FufBookmarkFileAdd<CR>
-vnoremap <silent> <leader>s<C-u> :FufBookmarkFileAddAsSelectedText<CR>
-nnoremap <silent> <leader>sy     :FufLine<CR>
+"let g:fuf_modesDisable = []
+"let g:fuf_mrufile_maxItem = 400
+"let g:fuf_mrucmd_maxItem = 400
+"nnoremap <silent> <leader>s,     :FufBufferTag<CR>
+"vnoremap <silent> <leader>s,     :FufBufferTagWithSelectedText!<CR>
+"nnoremap <silent> <leader>s.     :FufBufferTagAll<CR>
+"vnoremap <silent> <leader>s.     :FufBufferTagAllWithSelectedText!<CR>
+"nnoremap <silent> <leader>s<     :FufBufferTag!<CR>
+"vnoremap <silent> <leader>s<     :FufBufferTagWithSelectedText<CR>
+"nnoremap <silent> <leader>s>     :FufBufferTagAll!<CR>
+"vnoremap <silent> <leader>s>     :FufBufferTagAllWithSelectedText<CR>
+"nnoremap <silent> <leader>s]     :FufBufferTagAllWithCursorWord!<CR>
+"nnoremap <silent> <leader>s<C-]> :FufTagWithCursorWord!<CR>
+"nnoremap <silent> <leader>s}     :FufBufferTagWithCursorWord!<CR>
+"nnoremap <silent> <leader>sd     :FufDirWithCurrentBufferDir<CR>
+"nnoremap <silent> <leader>sD     :FufDirWithFullCwd<CR>
+"nnoremap <silent> <leader>s<C-d> :FufDir<CR>
+"nnoremap <silent> <leader>se     :FufEditDataFile<CR>
+"nnoremap <silent> <leader>sG     :FufTaggedFile!<CR>
+"nnoremap <silent> <leader>sg     :FufTaggedFile<CR>
+"nnoremap <silent> <leader>sh     :FufHelp<CR>
+"nnoremap <silent> <leader>si     :FufBookmarkDir<CR>
+"nnoremap <silent> <leader>s<C-i> :FufBookmarkDirAdd<CR>
+"nnoremap <silent> <leader>sj     :FufBuffer<CR>
+"nnoremap <silent> <leader>sk     :FufFileWithCurrentBufferDir<CR>
+"nnoremap <silent> <leader>sK     :FufFileWithFullCwd<CR>
+"nnoremap <silent> <leader>s<C-k> :FufFile<CR>
+"nnoremap <silent> <leader>sl     :FufCoverageFileChange<CR>
+"nnoremap <silent> <leader>sL     :FufCoverageFileChange<CR>
+"nnoremap <silent> <leader>s<C-l> :FufCoverageFileRegister<CR>
+"nnoremap <silent> <leader>sm     :FufMruCmd<CR>
+"nnoremap <silent> <leader>sn     :FufMruFile<CR>
+"nnoremap <silent> <leader>sN     :FufMruFileInCwd<CR>
+"nnoremap <silent> <leader>so     :FufJumpList<CR>
+"nnoremap <silent> <leader>sp     :FufChangeList<CR>
+"nnoremap <silent> <leader>sq     :FufQuickfix<CR>
+"nnoremap <silent> <leader>sr     :FufRenewCache<CR>
+"nnoremap <silent> <leader>sT     :FufTag!<CR>
+"nnoremap <silent> <leader>st     :FufTag<CR>
+"nnoremap <silent> <leader>su     :FufBookmarkFile<CR>
+"nnoremap <silent> <leader>s<C-u> :FufBookmarkFileAdd<CR>
+"vnoremap <silent> <leader>s<C-u> :FufBookmarkFileAddAsSelectedText<CR>
+"nnoremap <silent> <leader>sy     :FufLine<CR>
 
 
 " indent guide {{{2
@@ -982,20 +986,20 @@ xmap <leader>on <ESC><leader>on
 
 " mru {{{2
 
-let g:MRU_Check_File = 1
-let g:MRU_Exclude_Files = '\c\v(\\|\/)%(Temp|Tmp)\1'
-if has('win32')
-    let g:MRU_File = expand($VIM.'/_vim_mru_files')
-else
-    let g:MRU_File = expand('~/.vim/_vim_mru_files')
-endif
-let g:MRU_Max_Entries = 1000
-
-menutrans Recent\ Files 最近使用的文件(&R)
-menutrans Refresh\ list 刷新列表(&R)
-
-map <leader>u :<C-U>MRU<CR>
-map <leader>ru :<C-U>MRU 
+"let g:MRU_Check_File = 1
+"let g:MRU_Exclude_Files = '\c\v(\\|\/)%(Temp|Tmp)\1'
+"if has('win32')
+"    let g:MRU_File = expand($VIM.'/_vim_mru_files')
+"else
+"    let g:MRU_File = expand('~/.vim/_vim_mru_files')
+"endif
+"let g:MRU_Max_Entries = 1000
+"
+"menutrans Recent\ Files 最近使用的文件(&R)
+"menutrans Refresh\ list 刷新列表(&R)
+"
+"map <leader>u :<C-U>MRU<CR>
+"map <leader>ru :<C-U>MRU 
 
 " neocomplcache {{{2
 
@@ -1149,6 +1153,11 @@ endfunction
 nmap <leader>wm :<c-u>if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
 map <F2> <leader>wm
 imap <F2> <ESC><leader>wm
+
+" CtrlP
+
+map <leader>u :CtrlPMRUFiles<CR>
+map <leader>ru :CtrlPMRUFiles 
 
 " }}}2
 
