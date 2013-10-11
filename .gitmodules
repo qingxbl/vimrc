@@ -1,0 +1,78 @@
+[submodule "vimfiles/bundle/vim-pathogen"]
+	path = vimfiles/bundle/vim-pathogen
+	url = https://github.com/tpope/vim-pathogen.git
+[submodule "vimfiles/bundle/Colour-Sampler-Pack"]
+	path = vimfiles/bundle/Colour-Sampler-Pack
+	url = https://github.com/vim-scripts/Colour-Sampler-Pack.git
+[submodule "vimfiles/bundle/histwin.vim"]
+	path = vimfiles/bundle/histwin.vim
+	url = https://github.com/chrisbra/histwin.vim.git
+[submodule "vimfiles/bundle/vim-indent-guides"]
+	path = vimfiles/bundle/vim-indent-guides
+	url = https://github.com/nathanaelkane/vim-indent-guides.git
+[submodule "vimfiles/bundle/L9"]
+	path = vimfiles/bundle/L9
+	url = https://github.com/vim-scripts/L9.git
+[submodule "vimfiles/bundle/Mark--Karkat"]
+	path = vimfiles/bundle/Mark--Karkat
+	url = https://github.com/vim-scripts/Mark--Karkat.git
+[submodule "vimfiles/bundle/neocomplcache.vim"]
+	path = vimfiles/bundle/neocomplcache.vim
+	url = https://github.com/Shougo/neocomplcache.vim.git
+[submodule "vimfiles/bundle/neosnippet.vim"]
+	path = vimfiles/bundle/neosnippet.vim
+	url = https://github.com/Shougo/neosnippet.vim.git
+[submodule "vimfiles/bundle/nerdtree"]
+	path = vimfiles/bundle/nerdtree
+	url = https://github.com/scrooloose/nerdtree.git
+[submodule "vimfiles/bundle/OmniCppComplete"]
+	path = vimfiles/bundle/OmniCppComplete
+	url = https://github.com/vim-scripts/OmniCppComplete.git
+[submodule "vimfiles/bundle/Recover.vim"]
+	path = vimfiles/bundle/Recover.vim
+	url = https://github.com/chrisbra/Recover.vim.git
+[submodule "vimfiles/bundle/tabular"]
+	path = vimfiles/bundle/tabular
+	url = https://github.com/godlygeek/tabular.git
+[submodule "vimfiles/bundle/winmanager--Fox"]
+	path = vimfiles/bundle/winmanager--Fox
+	url = https://github.com/vim-scripts/winmanager--Fox.git
+[submodule "vimfiles/bundle/auto-pairs"]
+	path = vimfiles/bundle/auto-pairs
+	url = https://github.com/jiangmiao/auto-pairs.git
+[submodule "vimfiles/bundle/calendar.vim--Matsumoto"]
+	path = vimfiles/bundle/calendar.vim--Matsumoto
+	url = https://github.com/vim-scripts/calendar.vim--Matsumoto.git
+[submodule "vimfiles/bundle/echofunc"]
+	path = vimfiles/bundle/echofunc
+	url = https://github.com/mbbill/echofunc.git
+[submodule "vimfiles/bundle/fso"]
+	path = vimfiles/bundle/fso
+	url = https://github.com/vim-scripts/fso.git
+[submodule "vimfiles/bundle/hexman.vim"]
+	path = vimfiles/bundle/hexman.vim
+	url = https://github.com/vim-scripts/hexman.vim.git
+[submodule "vimfiles/bundle/vim-plugin-minibufexpl"]
+	path = vimfiles/bundle/vim-plugin-minibufexpl
+	url = https://github.com/techlivezheng/vim-plugin-minibufexpl.git
+[submodule "vimfiles/bundle/nerdcommenter"]
+	path = vimfiles/bundle/nerdcommenter
+	url = https://github.com/scrooloose/nerdcommenter.git
+[submodule "vimfiles/bundle/vim-easymotion"]
+	path = vimfiles/bundle/vim-easymotion
+	url = https://github.com/Lokaltog/vim-easymotion.git
+[submodule "vimfiles/bundle/sessionman.vim"]
+	path = vimfiles/bundle/sessionman.vim
+	url = https://github.com/vim-scripts/sessionman.vim.git
+[submodule "vimfiles/bundle/supertab"]
+	path = vimfiles/bundle/supertab
+	url = https://github.com/ervandew/supertab.git
+[submodule "vimfiles/bundle/vim-surround"]
+	path = vimfiles/bundle/vim-surround
+	url = https://github.com/tpope/vim-surround.git
+[submodule "vimfiles/bundle/vimbuddy.vim"]
+	path = vimfiles/bundle/vimbuddy.vim
+	url = https://github.com/vim-scripts/vimbuddy.vim.git
+[submodule "vimfiles/bundle/vcscommand"]
+	path = vimfiles/bundle/vcscommand
+	url = git://repo.or.cz/vcscommand
