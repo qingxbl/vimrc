@@ -842,6 +842,10 @@ imap <F4> <ESC><F4>a
 " plugin settings {{{1
 if has('eval')
 
+" pathogen {{{2
+
+execute pathogen#infect()
+
 " Easy Vim {{{2
 
 if &insertmode
