@@ -2,7 +2,7 @@
 " File Name:    vimrc
 " Author:       StarWing
 " Version:      0.5 (1901)
-" Last Change:  2013-06-29 18:43:36
+" Last Change:  2014-06-27 13:25:10
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -79,7 +79,7 @@ set statusline+=%= " right align
 set statusline+=\ 0x%-8B  " current char
 set statusline+=\ %-12.(%l,%c%V%)\ %P " offset
 
-if globpath(&rtp, "bundle/vimbuddy.vim/plugin/vimbuddy.vim") != ''
+if globpath(&rtp, "plugin/vimbuddy.vim") != ''
     set statusline+=\ %{VimBuddy()} " vim buddy
 endif
 
@@ -1001,6 +1001,8 @@ xmap <leader>on <ESC><leader>on
 "map <leader>u :<C-U>MRU<CR>
 "map <leader>ru :<C-U>MRU 
 
+map <leader>u :Unite file_mru<CR>
+
 " NERDTree {{{2
 
 nmap <leader>nn :NERDTreeToggle<CR>
@@ -1078,10 +1080,10 @@ nmap <leader>wm :<c-u>if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BA
 map <F2> <leader>wm
 imap <F2> <ESC><leader>wm
 
-" CtrlP
+" }}}2
 
-map <leader>u :CtrlPMRUFiles<CR>
-map <leader>ru :CtrlPMRUFiles 
+" VimShell {{{2
+nmap <leader>s :VimShellTab<CR>
 
 " }}}2
 
