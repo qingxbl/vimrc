@@ -73,3 +73,6 @@
 [submodule "vimfiles/bundle/neverland-vim-theme"]
 	path = vimfiles/bundle/neverland-vim-theme
 	url = https://github.com/trapd00r/neverland-vim-theme.git
+[submodule "vimfiles/bundle/vimcdoc"]
+	path = vimfiles/bundle/vimcdoc
+	url = https://github.com/asins/vimcdoc.git
