@@ -22,9 +22,6 @@
 [submodule "bundle/tabular"]
 	path = bundle/tabular
 	url = https://github.com/godlygeek/tabular.git
-[submodule "bundle/winmanager--Fox"]
-	path = bundle/winmanager--Fox
-	url = https://github.com/vim-scripts/winmanager--Fox.git
 [submodule "bundle/auto-pairs"]
 	path = bundle/auto-pairs
 	url = https://github.com/jiangmiao/auto-pairs.git
@@ -85,3 +82,6 @@
 [submodule "bundle/tlib_vim.git"]
 	path = bundle/tlib_vim.git
 	url = https://github.com/tomtom/tlib_vim.git
+[submodule "bundle/tagbar"]
+	path = bundle/tagbar
+	url = https://github.com/majutsushi/tagbar
