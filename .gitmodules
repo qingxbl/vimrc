@@ -1,84 +1,87 @@
-[submodule "vimfiles/bundle/vim-pathogen"]
-	path = vimfiles/bundle/vim-pathogen
+[submodule "bundle/vim-pathogen"]
+	path = bundle/vim-pathogen
 	url = https://github.com/tpope/vim-pathogen.git
-[submodule "vimfiles/bundle/histwin.vim"]
-	path = vimfiles/bundle/histwin.vim
+[submodule "bundle/histwin.vim"]
+	path = bundle/histwin.vim
 	url = https://github.com/chrisbra/histwin.vim.git
-[submodule "vimfiles/bundle/vim-indent-guides"]
-	path = vimfiles/bundle/vim-indent-guides
+[submodule "bundle/vim-indent-guides"]
+	path = bundle/vim-indent-guides
 	url = https://github.com/nathanaelkane/vim-indent-guides.git
-[submodule "vimfiles/bundle/L9"]
-	path = vimfiles/bundle/L9
+[submodule "bundle/L9"]
+	path = bundle/L9
 	url = https://github.com/vim-scripts/L9.git
-[submodule "vimfiles/bundle/Mark--Karkat"]
-	path = vimfiles/bundle/Mark--Karkat
+[submodule "bundle/Mark--Karkat"]
+	path = bundle/Mark--Karkat
 	url = https://github.com/vim-scripts/Mark--Karkat.git
-[submodule "vimfiles/bundle/nerdtree"]
-	path = vimfiles/bundle/nerdtree
+[submodule "bundle/nerdtree"]
+	path = bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
-[submodule "vimfiles/bundle/Recover.vim"]
-	path = vimfiles/bundle/Recover.vim
+[submodule "bundle/Recover.vim"]
+	path = bundle/Recover.vim
 	url = https://github.com/chrisbra/Recover.vim.git
-[submodule "vimfiles/bundle/tabular"]
-	path = vimfiles/bundle/tabular
+[submodule "bundle/tabular"]
+	path = bundle/tabular
 	url = https://github.com/godlygeek/tabular.git
-[submodule "vimfiles/bundle/winmanager--Fox"]
-	path = vimfiles/bundle/winmanager--Fox
+[submodule "bundle/winmanager--Fox"]
+	path = bundle/winmanager--Fox
 	url = https://github.com/vim-scripts/winmanager--Fox.git
-[submodule "vimfiles/bundle/auto-pairs"]
-	path = vimfiles/bundle/auto-pairs
+[submodule "bundle/auto-pairs"]
+	path = bundle/auto-pairs
 	url = https://github.com/jiangmiao/auto-pairs.git
-[submodule "vimfiles/bundle/calendar.vim--Matsumoto"]
-	path = vimfiles/bundle/calendar.vim--Matsumoto
+[submodule "bundle/calendar.vim--Matsumoto"]
+	path = bundle/calendar.vim--Matsumoto
 	url = https://github.com/vim-scripts/calendar.vim--Matsumoto.git
-[submodule "vimfiles/bundle/echofunc"]
-	path = vimfiles/bundle/echofunc
+[submodule "bundle/echofunc"]
+	path = bundle/echofunc
 	url = https://github.com/mbbill/echofunc.git
-[submodule "vimfiles/bundle/fso"]
-	path = vimfiles/bundle/fso
+[submodule "bundle/fso"]
+	path = bundle/fso
 	url = https://github.com/vim-scripts/fso.git
-[submodule "vimfiles/bundle/hexman.vim"]
-	path = vimfiles/bundle/hexman.vim
+[submodule "bundle/hexman.vim"]
+	path = bundle/hexman.vim
 	url = https://github.com/vim-scripts/hexman.vim.git
-[submodule "vimfiles/bundle/nerdcommenter"]
-	path = vimfiles/bundle/nerdcommenter
+[submodule "bundle/nerdcommenter"]
+	path = bundle/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
-[submodule "vimfiles/bundle/vim-easymotion"]
-	path = vimfiles/bundle/vim-easymotion
+[submodule "bundle/vim-easymotion"]
+	path = bundle/vim-easymotion
 	url = https://github.com/Lokaltog/vim-easymotion.git
-[submodule "vimfiles/bundle/sessionman.vim"]
-	path = vimfiles/bundle/sessionman.vim
+[submodule "bundle/sessionman.vim"]
+	path = bundle/sessionman.vim
 	url = https://github.com/vim-scripts/sessionman.vim.git
-[submodule "vimfiles/bundle/vim-surround"]
-	path = vimfiles/bundle/vim-surround
+[submodule "bundle/vim-surround"]
+	path = bundle/vim-surround
 	url = https://github.com/tpope/vim-surround.git
-[submodule "vimfiles/bundle/vcscommand"]
-	path = vimfiles/bundle/vcscommand
+[submodule "bundle/vcscommand"]
+	path = bundle/vcscommand
 	url = git://repo.or.cz/vcscommand
-[submodule "vimfiles/bundle/YouCompleteMe"]
-	path = vimfiles/bundle/YouCompleteMe
+[submodule "bundle/YouCompleteMe"]
+	path = bundle/YouCompleteMe
 	url = https://github.com/Valloric/YouCompleteMe
-[submodule "vimfiles/bundle/vimproc.vim"]
-	path = vimfiles/bundle/vimproc.vim
+[submodule "bundle/vimproc.vim"]
+	path = bundle/vimproc.vim
 	url = https://github.com/Shougo/vimproc.vim.git
-[submodule "vimfiles/bundle/vimshell.vim"]
-	path = vimfiles/bundle/vimshell.vim
+[submodule "bundle/vimshell.vim"]
+	path = bundle/vimshell.vim
 	url = https://github.com/Shougo/vimshell.vim.git
-[submodule "vimfiles/bundle/neomru.vim"]
-	path = vimfiles/bundle/neomru.vim
+[submodule "bundle/neomru.vim"]
+	path = bundle/neomru.vim
 	url = https://github.com/Shougo/neomru.vim.git
-[submodule "vimfiles/bundle/unite.vim"]
-	path = vimfiles/bundle/unite.vim
+[submodule "bundle/unite.vim"]
+	path = bundle/unite.vim
 	url = https://github.com/Shougo/unite.vim.git
-[submodule "vimfiles/bundle/neverland-vim-theme"]
-	path = vimfiles/bundle/neverland-vim-theme
+[submodule "bundle/neverland-vim-theme"]
+	path = bundle/neverland-vim-theme
 	url = https://github.com/trapd00r/neverland-vim-theme.git
-[submodule "vimfiles/bundle/vimcdoc"]
-	path = vimfiles/bundle/vimcdoc
+[submodule "bundle/vimcdoc"]
+	path = bundle/vimcdoc
 	url = https://github.com/asins/vimcdoc.git
-[submodule "vimfiles/bundle/syntastic"]
-	path = vimfiles/bundle/syntastic
+[submodule "bundle/syntastic"]
+	path = bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
-[submodule "vimfiles/bundle/vim-glsl"]
-	path = vimfiles/bundle/vim-glsl
+[submodule "bundle/vim-glsl"]
+	path = bundle/vim-glsl
 	url = https://github.com/tikhomirov/vim-glsl
+[submodule "bundle/tlib_vim.git"]
+	path = bundle/tlib_vim.git
+	url = https://github.com/tomtom/tlib_vim.git
