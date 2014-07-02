@@ -76,3 +76,6 @@
 [submodule "vimfiles/bundle/vimcdoc"]
 	path = vimfiles/bundle/vimcdoc
 	url = https://github.com/asins/vimcdoc.git
+[submodule "vimfiles/bundle/syntastic"]
+	path = vimfiles/bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git

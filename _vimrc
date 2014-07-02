@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (1901)
-" Last Change:  2014-06-27 13:25:10
+" Version:      0.5 (1902)
+" Last Change:  2014-07-01 15:42:41
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -116,17 +116,9 @@ if has('gui_running') " {{{2
         "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
         set gfn=Monospace\ 9
     endif
-    if has('win32')
-        silent! colorscheme evening
-    else
-        silent! colorscheme kaltex
-    end
 
-else " in terminal {{{2
-    silent! colorscheme kaltex
-    "silent! colorscheme evening
 endif " }}}2
-if has("win32") " {{{2
+if has('win32') " {{{2
     if $LANG =~? 'zh_CN' && &encoding !=? "cp936"
         set termencoding=cp936
 
@@ -668,9 +660,9 @@ nmap <leader>ec :echo eval(getline('.'))[col('.')-1:]<CR>
 xmap <leader>ec y:echo eval(@")<CR>
 
 " get syntax stack {{{3
-nmap<silent> <leader>gs :echo ""<bar>for id in synstack(line('.'),col('.'))
-            \\|echo synIDattr(id, "name")
-            \\|endfor<CR>
+" nmap<silent> <leader>gs :echo ""<bar>for id in synstack(line('.'),col('.'))
+"             \\|echo synIDattr(id, "name")
+"             \\|endfor<CR>
 
 " vimrc edit {{{3
 map <leader>re :drop $MYVIMRC<CR>
@@ -850,6 +842,9 @@ if has('eval')
 
 execute pathogen#infect()
 
+" colorscheme colorscheme neverland2 {{{2
+silent! colorscheme neverland2
+" }}}2
 " Easy Vim {{{2
 
 if &insertmode
@@ -1002,6 +997,9 @@ xmap <leader>on <ESC><leader>on
 "map <leader>ru :<C-U>MRU 
 
 map <leader>u :Unite file_mru<CR>
+map <leader>uu :Unite file_mru<CR>
+map <leader>uf :Unite file<CR>
+map <leader>ub :Unite buffer<CR>
 
 " NERDTree {{{2
 
@@ -1081,9 +1079,12 @@ map <F2> <leader>wm
 imap <F2> <ESC><leader>wm
 
 " }}}2
-
 " VimShell {{{2
 nmap <leader>s :VimShellTab<CR>
+
+" }}}2
+" YouCompleteMe {{{2
+nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 " }}}2
 
