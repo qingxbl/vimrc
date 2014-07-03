@@ -137,13 +137,9 @@ elseif has('unix') " {{{2
 endif " }}}2
 " swapfiles/undofiles settings {{{2
 
-if has('win32')
-    let s:tprefix = $VIM
-elseif has('unix')
-    let s:tprefix = expand("~/.vim")
-end
+let s:tprefix = expand("~/.vim")
 
-for dir in ['/swapfiles', '/swapfiles/backupfiles', '/swapfiles/undofiles']
+for dir in ['/swapfiles', '/backupfiles', '/undofiles']
     let s:dir = s:tprefix.dir
     if !isdirectory(s:dir)
         if has('win32') && $LANG =~? 'zh_CN'
@@ -155,13 +151,13 @@ for dir in ['/swapfiles', '/swapfiles/backupfiles', '/swapfiles/undofiles']
 endfor
 
 if isdirectory(s:tprefix.'/swapfiles')
-    let &directory=s:tprefix."/swapfiles"
+    let &directory=s:tprefix.'/swapfiles'
 endif
-if isdirectory(s:tprefix.'/swapfiles/backupfiles')
-    let &backupdir=s:tprefix."/swapfiles/backupfiles"
+if isdirectory(s:tprefix.'/backupfiles')
+    let &backupdir=s:tprefix."/backupfiles"
 endif
-if v:version >= 703 && isdirectory($VIM.'/swapfiles/undofiles')
-    let &undodir=s:tprefix."/swapfiles/undofiles,."
+if v:version >= 703 && isdirectory(s:tprefix.'/undofiles')
+    let &undodir=s:tprefix."/undofiles"
 endif
 
 "}}}2
@@ -846,7 +842,7 @@ imap <F4> <ESC><F4>a
 if has('eval')
 
 " pathogen {{{2
-
+let &rtp = &rtp . ',' . $VIM . '/vimfiles/bundle/vim-pathogen'
 execute pathogen#infect()
 
 " colorscheme colorscheme neverland2 {{{2
@@ -1003,6 +999,10 @@ xmap <leader>on <ESC><leader>on
 "map <leader>u :<C-U>MRU<CR>
 "map <leader>ru :<C-U>MRU 
 
+let g:neomru#file_mru_path = s:tprefix.'/neomru/file'
+let g:neomru#directory_mru_path = s:tprefix.'/neomru/directory'
+let g:unite_data_directory = s:tprefix.'/unite'
+
 map <leader>u :Unite file_mru<CR>
 map <leader>uu :Unite file_mru<CR>
 map <leader>uf :Unite file<CR>
@@ -1070,29 +1070,35 @@ let g:VCSCommandMapPrefix = "<leader>vc"
 
 " winmanager {{{2
 
-let g:NERDTree_title="[NERD Tree]" 
-let g:winManagerWindowLayout = 'NERDTree|TagList'
-
-function! NERDTree_Start()
-    exec 'NERDTree'
-endfunction
-
-function! NERDTree_IsValid()
-    return 1
-endfunction
-
-
-nmap <leader>wm :<c-u>if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
-map <F2> <leader>wm
-imap <F2> <ESC><leader>wm
+" let g:NERDTree_title="[NERD Tree]" 
+" let g:winManagerWindowLayout = 'NERDTree|TagList'
+" 
+" function! NERDTree_Start()
+"     exec 'NERDTree'
+" endfunction
+" 
+" function! NERDTree_IsValid()
+"     return 1
+" endfunction
+" 
+" 
+" nmap <leader>wm :<c-u>if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
+" map <F2> <leader>wm
+" imap <F2> <ESC><leader>wm
 
 " }}}2
 " VimShell {{{2
+let g:vimshell_data_directory = s:tprefix.'/vimshell'
 nmap <leader>s :VimShellTab<CR>
 
 " }}}2
 " YouCompleteMe {{{2
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+" }}}2
+" Tagbar {{{2
+map <F2> :TagbarToggle<CR>
+imap <F2> <ESC>:TagbarToggle<CR>
 
 " }}}2
 
