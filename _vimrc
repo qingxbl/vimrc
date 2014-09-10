@@ -90,9 +90,9 @@ endif
 
 " diffexpr {{{2
 if has('eval')
-    set diffexpr=rc:my_diff('diff')
+    set diffexpr=MyDiff('diff')
 
-    function! rc:my_diff(cmd)
+    function! MyDiff(cmd)
         let cmd = [a:cmd, '-a --binary', v:fname_in, v:fname_new]
 
         if &diffopt =~ 'icase'
@@ -109,9 +109,9 @@ if has('gui_running') " {{{2
     set co=120 lines=35
 
     if has('win32')
-        silent! set gfn=Consolas:h10:cANSI
+        silent! set gfn=Consolas:h9:cANSI
         "silent! set gfw=YaHei_Consolas_Hybrid:h10:cGB2312
-        exec 'set gfw='.iconv('Consolas', 'utf8', 'gbk').':h9:cGB2312'
+        "exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
     else
         "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
         set gfn=Monospace\ 9
@@ -281,7 +281,7 @@ if has('eval')
     " $PRJDIR {{{3
 
     for dir in ['~', '~/..', $VIM, $VIM.'/..', $VIM.'/../..', $WORK]
-        for name in ['prj', 'Project', 'Code']
+        for name in ['prj', 'Code', 'Project']
             if isdirectory(expand(dir."/".name))
                 call s:let('$PRJDIR', s:globfirst(dir."/".name))
                 break
@@ -337,12 +337,16 @@ if has('autocmd')
         au BufReadPost * if getfsize(expand('%')) < 50000 | syn sync fromstart | endif
         "au BufWritePre * let &backup = (getfsize(expand('%')) > 500000)
         au BufNewFile,BufRead *.vba set noml
-        au FileType clojure,dot,lua,haskell,m4,perl,python,ruby,scheme,tcl,vim
+        au FileType clojure,dot,lua,haskell,m4,perl,python,ruby,scheme,tcl,vim,javascript
                     \   if !exists('b:ft') || b:ft != &ft
                     \|      let b:ft = &ft
                     \|      set sw=4 ts=8 sts=4 et sta nu fdc=2 fo-=t
                     \|  endif
-        au FileType lua se sw=3 ts=3 et
+        au FileType lua se sw=3 sts=3 ts=3 et
+        au FileType javascript se sw=2 sts=2 ts=2 et fdc=2 fdm=syntax
+        au FileType javascript if exists("*JavaScriptFold")
+                    \|             call JavaScriptFold()
+                    \|         endif
         au FileType scheme if exists(":AutoCloseOff") == 2
                     \|         exec "AutoCloseOff"
                     \|     endif
@@ -841,9 +845,50 @@ imap <F4> <ESC><F4>a
 " plugin settings {{{1
 if has('eval')
 
-" pathogen {{{2
-let &rtp = &rtp . ',' . $VIM . '/vimfiles/bundle/vim-pathogen'
-execute pathogen#infect()
+
+" Vundle {{{2
+
+set nocompatible
+filetype off
+
+if has("win32")
+    set rtp+=$VIM/vimfiles/bundle/Vundle.vim
+    call vundle#begin("$VIM/vimfiles/bundle")
+elseif exists("~/.vim/bundle/Vundle.vim")
+    set rtp+=~/.vim/bundle/Vundle.vim
+    call vundle#begin("~/.vim/bundle")
+endif
+
+Plugin 'L9'
+Plugin 'calendar.vim--Matsumoto'
+Plugin 'fso'
+Plugin 'hexman.vim'
+
+Plugin 'Lokaltog/vim-easymotion'
+Plugin 'Shougo/neomru.vim'
+Plugin 'Shougo/unite.vim'
+Plugin 'Shougo/vimproc.vim'
+Plugin 'Shougo/vimshell.vim'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'asins/vimcdoc'
+Plugin 'chrisbra/Recover.vim'
+Plugin 'chrisbra/histwin.vim'
+Plugin 'godlygeek/tabular'
+Plugin 'jiangmiao/auto-pairs'
+Plugin 'majutsushi/tagbar'
+Plugin 'mbbill/echofunc'
+Plugin 'nathanaelkane/vim-indent-guides'
+Plugin 'qingxbl/Mark--Karkat'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/syntastic'
+Plugin 'tikhomirov/vim-glsl'
+Plugin 'tomtom/tlib_vim'
+Plugin 'tpope/vim-surround'
+Plugin 'trapd00r/neverland-vim-theme'
+
+call vundle#end()
+filetype plugin indent on
 
 " colorscheme colorscheme neverland2 {{{2
 silent! colorscheme neverland2
@@ -881,15 +926,6 @@ nmap <leader>DA <leader>caL<CR>Go<CR><C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR><CR>
 xmap <leader>da "dy<leader>da<BS> - 摘要：<CR><ESC>"dP
 xmap <leader>DA "dy<leader>DA<BS> - 摘要：<CR><ESC>"dP
 
-" cctree {{{2
-
-map <leader>ctt :CCTreeLoadDB cscope.out<CR>
-map <leader>ct> <C-\>>
-map <leader>ct< <C-\><
-map <leader>ct- <C-\>-
-map <leader>ct= <C-\>=
-
-
 " ctk {{{2
 
 amenu 1.246 ToolBar.BuiltIn25 :CC<CR>
@@ -898,13 +934,6 @@ amenu 1.247 ToolBar.BuiltIn15 :RUN<CR>
 tmenu ToolBar.BuiltIn15 CTK Run
 amenu 1.248 ToolBar.-sep5-1- <Nop>
 
-
-" delimitMate {{{2
-
-let delimitMate_expand_cr = 1
-let delimitMate_expand_space = 1
-autocmd FileType python let b:delimitMate_nesting_quotes = ['"']
-autocmd FileType markdown let b:delimitMate_nesting_quotes = ['`']
 
 " EasyGrep {{{2
 
@@ -964,23 +993,25 @@ let g:EasyGrepCommand = 1
 let g:indent_guides_guide_size=1
 
 
-" latex-suite {{{2
+" minibufexpl {{{2
 
-let g:tex_flavor='latex'
+" If you like control + vim direction key to navigate
+" windows then perform the remapping
+noremap <C-J>     <C-W>j
+noremap <C-K>     <C-W>k
+noremap <C-H>     <C-W>h
+noremap <C-L>     <C-W>l
 
-" lua-inspect {{{2
+" If you like control + arrow key to navigate windows
+" then perform the remapping
+noremap <C-Down>  <C-W>j
+noremap <C-Up>    <C-W>k
+noremap <C-Left>  <C-W>h
+noremap <C-Right> <C-W>l
 
-"let g:loaded_luainspect=1 "disable luainspect
-let g:lua_inspect_events = ""
+nnoremap <leader>on :on<BAR>MBEOpen<CR>
+xnoremap <leader>on <ESC>:on<BAR>MBEOpen<CR>
 
-" minibufexplpp {{{2
-
-let g:miniBufExplMapCTabSwitchBufs = 1
-let g:miniBufExplMapWindowNavVim = 1
-let g:miniBufExplorerMoreThanOne = 2
-
-nmap <leader>on :on<CR><leader>mbe<C-W>j
-xmap <leader>on <ESC><leader>on
 
 " mru {{{2
 
@@ -1031,17 +1062,36 @@ let g:OmniCpp_MayCompleteDot = 1
 let g:OmniCpp_MayCompleteArrow = 1
 let g:OmniCpp_MayCompleteScope = 1
 
+
+" neocomplete {{{2
+
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#data_directory = s:tprefix . "swapfiles/neocomplete"
+
+
+" UltiSnips {{{2
+
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger = '<Tab>'
+let g:UltiSnipsListSnippets = '<C-Tab>'
+let g:UltiSnipsJumpForwardTrigger = '<Tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<S-Tab>'
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
+let g:UltiSnipsSnippetDirectories=['UltiSnips']
+
+if has('win32')
+    let g:UltiSnipsSnippetsDir = expand("$VIM/vimfiles/UltiSnips")
+else
+    let g:UltiSnipsSnippetsDir = expand("~/.vim/UltiSnips")
+endif
+
+
 " perl {{{2
 
 let g:perl_fold = 1
-
-" sessionman {{{2
-
-nmap <leader>pc :SessionClose<CR>
-nmap <leader>pe :SessionShowLast<CR>
-nmap <leader>pl :SessionList<CR>
-nmap <leader>po :SessionOpenLast<CR>
-nmap <leader>ps :SessionSave<CR>
 
 " supertab {{{2
 
@@ -1054,6 +1104,7 @@ let g:SuperTabNoCompleteAfter = [ '^', ',', '\s' ]
 " surround {{{2
 
 let g:surround_{char2nr("c")} = "/* \r */"
+
 
 " taglist {{{2
 
