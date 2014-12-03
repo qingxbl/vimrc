@@ -861,7 +861,6 @@ endif
 
 Plugin 'L9'
 Plugin 'calendar.vim--Matsumoto'
-Plugin 'fso'
 Plugin 'hexman.vim'
 
 Plugin 'Lokaltog/vim-easymotion'
