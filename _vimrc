@@ -62,22 +62,22 @@ endif
 
 set titlestring=%f%(\ %m%h%r%)\ -\ StarWing's\ Vim:\ %{v:servername}
 set laststatus=2
-set statusline=
-set statusline+=%2*%-3.3n%0*%<  " buffer number
-set statusline+=%<\ %f  " file name
-set statusline+=\ %1*%h%m%r%w%0* " flag
-set statusline+=[
-
-if v:version >= 600
-    set statusline+=%{&ft!=''?&ft:'noft'}, " filetype
-    set statusline+=%{&fenc!=''?&fenc:&enc}, " fileencoding
-endif
-
-set statusline+=%{&fileformat}] " file format
-set statusline+=%= " right align
-"set statusline+=\ %2*0x%-8B  " current char
-set statusline+=\ 0x%-8B  " current char
-set statusline+=\ %-12.(%l,%c%V%)\ %P " offset
+"set statusline=
+"set statusline+=%2*%-3.3n%0*%<  " buffer number
+"set statusline+=%<\ %f  " file name
+"set statusline+=\ %1*%h%m%r%w%0* " flag
+"set statusline+=[
+"
+"if v:version >= 600
+"    set statusline+=%{&ft!=''?&ft:'noft'}, " filetype
+"    set statusline+=%{&fenc!=''?&fenc:&enc}, " fileencoding
+"endif
+"
+"set statusline+=%{&fileformat}] " file format
+"set statusline+=%= " right align
+""set statusline+=\ %2*0x%-8B  " current char
+"set statusline+=\ 0x%-8B  " current char
+"set statusline+=\ %-12.(%l,%c%V%)\ %P " offset
 
 if globpath(&rtp, "plugin/vimbuddy.vim") != ''
     set statusline+=\ %{VimBuddy()} " vim buddy
@@ -863,12 +863,14 @@ Plugin 'L9'
 Plugin 'calendar.vim--Matsumoto'
 Plugin 'hexman.vim'
 
+Plugin 'gmarik/Vundle.vim'
 Plugin 'Lokaltog/vim-easymotion'
+Plugin 'bling/vim-airline'
 Plugin 'Shougo/neomru.vim'
 Plugin 'Shougo/unite.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/vimshell.vim'
-Plugin 'Valloric/YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
 Plugin 'asins/vimcdoc'
 Plugin 'chrisbra/Recover.vim'
 Plugin 'chrisbra/histwin.vim'
@@ -884,13 +886,14 @@ Plugin 'scrooloose/syntastic'
 Plugin 'tikhomirov/vim-glsl'
 Plugin 'tomtom/tlib_vim'
 Plugin 'tpope/vim-surround'
-Plugin 'trapd00r/neverland-vim-theme'
+Plugin 'chriskempson/base16-vim'
 
 call vundle#end()
 filetype plugin indent on
 
-" colorscheme colorscheme neverland2 {{{2
-silent! colorscheme neverland2
+" colorscheme {{{2
+silent! colorscheme base16-tomorrow
+set background=dark
 " }}}2
 " Easy Vim {{{2
 
@@ -1139,7 +1142,9 @@ let g:VCSCommandMapPrefix = "<leader>vc"
 " }}}2
 " VimShell {{{2
 let g:vimshell_data_directory = s:tprefix.'/vimshell'
-nmap <leader>s :VimShellTab<CR>
+let g:vimshell_enable_smart_case = 1
+let g:vimshell_prompt = '> '
+map <F3> :VimShellTab<CR>
 
 " }}}2
 " YouCompleteMe {{{2
@@ -1151,6 +1156,9 @@ map <F2> :TagbarToggle<CR>
 imap <F2> <ESC>:TagbarToggle<CR>
 
 " }}}2
+" airline {{{2
+let g:airline#extensions#tabline#enabled = 1
+" }}}
 
 endif
 
