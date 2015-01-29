@@ -128,6 +128,12 @@ if has('win32') " {{{2
         silent! so $VIMRUNTIME/delmenu.vim
         silent! so $VIMRUNTIME/menu.vim
     endif
+    if !empty($CONEMUBUILD)
+        set term=xterm
+        set t_Co=16
+        let &t_AB="\e[48;5;%dm"
+        let &t_AF="\e[38;5;%dm"
+    endif
 
 
 elseif has('unix') " {{{2
@@ -718,8 +724,8 @@ endif
 
 " set buffer tabstop and sw and et
 
-map <leader>1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
-map <leader>2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
+" map <leader>1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
+" map <leader>2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
 
 " indent {{{3
 
@@ -869,6 +875,7 @@ Plugin 'hexman.vim'
 
 Plugin 'gmarik/Vundle.vim'
 Plugin 'Lokaltog/vim-easymotion'
+Plugin 'tpope/vim-fugitive'
 Plugin 'bling/vim-airline'
 Plugin 'Shougo/neomru.vim'
 Plugin 'Shougo/unite.vim'
@@ -1201,6 +1208,16 @@ imap <F2> <ESC>:TagbarToggle<CR>
 " }}}2
 " airline {{{2
 let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
 " }}}
 
 endif
