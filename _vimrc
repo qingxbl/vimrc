@@ -901,6 +901,7 @@ Plugin 'chriskempson/base16-vim'
 " Language-spec
 Plugin 'wting/rust.vim'
 Plugin 'tikhomirov/vim-glsl'
+Plugin 'elzr/vim-json'
 
 "Plugin 'xolox/vim-misc'  " required by lua.vim
 "Plugin 'xolox/vim-lua-ftplugin'  " Lua file type plug-in for the Vim text editor
