@@ -29,7 +29,7 @@ set cpo&vim " set cpo-=C cpo-=b
 
 " generic Settings {{{2
 
-set ambiwidth=double
+"set ambiwidth=double
 set bsdir=buffer
 set complete-=i
 set completeopt=longest,menu
@@ -881,7 +881,7 @@ Plugin 'Shougo/neomru.vim'
 Plugin 'Shougo/unite.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/vimshell.vim'
-" Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'asins/vimcdoc'
 Plugin 'chrisbra/Recover.vim'
 Plugin 'chrisbra/histwin.vim'
@@ -1208,17 +1208,29 @@ imap <F2> <ESC>:TagbarToggle<CR>
 
 " }}}2
 " airline {{{2
+function! s:switch_tab(i)
+    let curtabcnt = tabpagenr('$')
+    if curtabcnt != 1
+        exec 'tabnext '.a:i
+    elseif exists('<Plug>AirlineSelectTab'.a:i)
+        exec '<Plug>AirlineSelectTab'.a:i
+    else
+        exec 'b!'.a:i
+    endif
+endfunction
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#buffer_idx_mode = 1
-nmap <leader>1 <Plug>AirlineSelectTab1
-nmap <leader>2 <Plug>AirlineSelectTab2
-nmap <leader>3 <Plug>AirlineSelectTab3
-nmap <leader>4 <Plug>AirlineSelectTab4
-nmap <leader>5 <Plug>AirlineSelectTab5
-nmap <leader>6 <Plug>AirlineSelectTab6
-nmap <leader>7 <Plug>AirlineSelectTab7
-nmap <leader>8 <Plug>AirlineSelectTab8
-nmap <leader>9 <Plug>AirlineSelectTab9
+let g:airline#extensions#tabline#tab_nr_type = 1
+let g:airline_powerline_fonts = 1
+nmap <leader>1 :call <SID>switch_tab(1)<CR>
+nmap <leader>2 :call <SID>switch_tab(2)<CR>
+nmap <leader>3 :call <SID>switch_tab(3)<CR>
+nmap <leader>4 :call <SID>switch_tab(4)<CR>
+nmap <leader>5 :call <SID>switch_tab(5)<CR>
+nmap <leader>6 :call <SID>switch_tab(6)<CR>
+nmap <leader>7 :call <SID>switch_tab(7)<CR>
+nmap <leader>8 :call <SID>switch_tab(8)<CR>
+nmap <leader>9 :call <SID>switch_tab(9)<CR>
 " }}}
 
 endif
