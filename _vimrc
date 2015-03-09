@@ -200,6 +200,7 @@ if has('eval')
                     \  ['mingw',  'minGW/bin'        ],
                     \  ['minsys', 'minSYS/bin'       ],
                     \  ['mingw',  'minSYS/mingw/bin' ],
+                    \  ['lua53',  'lua53'            ],
                     \  ['lua52',  'lua52'            ],
                     \  ['lua51',  'lua51'            ],
                     \  ['luaJIT', 'luaJIT'           ],
@@ -1086,7 +1087,7 @@ let g:OmniCpp_MayCompleteScope = 1
 " neocomplete {{{2
 
 let g:neocomplete#enable_at_startup = 1
-let g:neocomplete#data_directory = s:tprefix . "swapfiles/neocomplete"
+let g:neocomplete#data_directory = s:tprefix . "/swapfiles/neocomplete"
 
 
 " UltiSnips {{{2
