@@ -865,7 +865,7 @@ filetype off
 let s:bundle_path = has("win32") ? '$VIM/vimfiles/bundle' : '~/.vim/bundle'
 let &rtp .= ','.s:bundle_path.'/Vundle.vim'
 call vundle#begin(s:bundle_path)
-unlet s:bundle_path
+
 Plugin 'L9'
 Plugin 'calendar.vim--Matsumoto'
 Plugin 'hexman.vim'
@@ -1198,6 +1198,7 @@ map <F3> :VimShellTab<CR>
 " }}}2
 " YouCompleteMe {{{2
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
+let g:ycm_global_ycm_extra_conf = expand(s:bundle_path.'/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py')
 
 " }}}2
 " Tagbar {{{2
