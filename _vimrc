@@ -862,14 +862,10 @@ if has('eval')
 
 filetype off
 
-if has("win32")
-    set rtp+=$VIM/vimfiles/bundle/Vundle.vim
-    call vundle#begin("$VIM/vimfiles/bundle")
-elseif exists("~/.vim/bundle/Vundle.vim")
-    set rtp+=~/.vim/bundle/Vundle.vim
-    call vundle#begin("~/.vim/bundle")
-endif
-
+let s:bundle_path = has("win32") ? '$VIM/vimfiles/bundle' : '~/.vim/bundle'
+let &rtp .= ','.s:bundle_path.'/Vundle.vim'
+call vundle#begin(s:bundle_path)
+unlet s:bundle_path
 Plugin 'L9'
 Plugin 'calendar.vim--Matsumoto'
 Plugin 'hexman.vim'
@@ -903,6 +899,7 @@ Plugin 'chriskempson/base16-vim'
 Plugin 'wting/rust.vim'
 Plugin 'tikhomirov/vim-glsl'
 Plugin 'elzr/vim-json'
+Plugin 'thinca/vim-logcat'
 
 "Plugin 'xolox/vim-misc'  " required by lua.vim
 "Plugin 'xolox/vim-lua-ftplugin'  " Lua file type plug-in for the Vim text editor
@@ -1156,9 +1153,9 @@ set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
+let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+let g:syntastic_check_on_wq = 1
 
 " taglist {{{2
 
