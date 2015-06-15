@@ -109,7 +109,7 @@ if has('gui_running') " {{{2
     set co=120 lines=35
 
     if has('win32')
-        silent! set gfn=Consolas:h9:cANSI
+        silent! set gfn=Consolas:h9
         "silent! set gfw=YaHei_Mono:h10:cGB2312
         "exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
     else
