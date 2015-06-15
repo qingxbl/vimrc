@@ -200,6 +200,7 @@ if has('eval')
                     \  ['mingw',  'minGW/bin'        ],
                     \  ['minsys', 'minSYS/bin'       ],
                     \  ['mingw',  'minSYS/mingw/bin' ],
+                    \  ['msys64', 'msys64/usr/bin'   ],
                     \  ['lua53',  'lua53'            ],
                     \  ['lua52',  'lua52'            ],
                     \  ['lua51',  'lua51'            ],
