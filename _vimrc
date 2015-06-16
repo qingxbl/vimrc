@@ -200,7 +200,6 @@ if has('eval')
                     \  ['mingw',  'minGW/bin'        ],
                     \  ['minsys', 'minSYS/bin'       ],
                     \  ['mingw',  'minSYS/mingw/bin' ],
-                    \  ['msys64', 'msys64/usr/bin'   ],
                     \  ['lua53',  'lua53'            ],
                     \  ['lua52',  'lua52'            ],
                     \  ['lua51',  'lua51'            ],
@@ -210,6 +209,8 @@ if has('eval')
                     \  ['python', 'Python'           ],
                     \  ['python', 'Python27'         ],
                     \  ['python', 'Python31'         ],
+                    \  ['msys64', 'msys64/usr/bin'   ],
+                    \  ['msys2_mingw64', 'msys64/mingw64/bin'],
                     \  ['rust',   'Rust/bin'         ]]
         for [name, path] in s:tools
             if !isdirectory($VIM.'/../'.path) | continue | endif
@@ -1200,6 +1201,7 @@ map <F3> :VimShellTab<CR>
 " YouCompleteMe {{{2
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
 let g:ycm_global_ycm_extra_conf = expand(s:bundle_path.'/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py')
+let g:ycm_server_keep_logfiles = 1
 
 " }}}2
 " Tagbar {{{2
