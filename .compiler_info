@@ -11,14 +11,14 @@ set cpo&vim
 
 " Common default info {{{1
 
-au FileType c,cpp,rust SetDefaultInfo!
+au FileType c,cpp,rust,nim SetDefaultInfo!
 	\ cmd='!$cc $flags $input $libs -o $output'
 	\ run='!$output $args' input='%:.' output='%:t:r'
 	\ asm_run=":pedit $output" args=''
 	\ asm_output='$output.s'
 	\ debug_run='!gdb -q $output'
 
-au FileType clojure,javascript,haskell,lua,meta.lua,m4,perl,python,ruby,scheme,tcl,lisp SetDefaultInfo!
+au FileType clojure,javascript,haskell,lua,metalua,moon,m4,perl,python,ruby,scheme,tcl,lisp SetDefaultInfo!
         \ cmd='#RUN_DIRECT' runmap='<f5>'
         \ run='!$cc $flags $src $args' src='%:.'
         \ flags='' args=''
@@ -67,8 +67,8 @@ au FileType rust SetCompilerInfo! rustc
 
 " filetype clojure "{{{1
  
-au filetype clojure SetExtensionName clj
-au filetype clojure SetCompilerInfo! clojure
+au FileType clojure SetExtensionName clj
+au FileType clojure SetCompilerInfo! clojure
 	    \ title='clojure' cc='java clojure.main'
  
 " filetype graphviz {{{1
@@ -86,8 +86,8 @@ au FileType haskell SetCompilerInfo! ghci
 	    \ title='ghci' cc='ghci' cmdmap='<f5>'
 
 " filetype javascript {{{1
-au filetype javascript SetExtensionName js
-au filetype javascript SetCompilerInfo! js
+au FileType javascript SetExtensionName js
+au FileType javascript SetCompilerInfo! js
 	    \ title='node' cc='node'
 
 " filetype lua {{{1
@@ -105,11 +105,24 @@ au FileType meta.lua SetExtensionName mlua
 au FileType meta.lua SetCompilerInfo! mlua
 	    \ title='metalua' cc='metalua' src='-f %:.' cmdmap='<f5>'
 
+" filetype moonscript {{{1
+
+au FileType moon SetExtensionName moon
+au FileType moon SetCompilerInfo! moon
+	    \ title='moon' cc='moon' src='-- %:.' cmdmap='<f5>'
+
 " filetype m4 {{{1
 
 au FileType m4 SetExtensionName m4
 au FileType m4 SetCompilerInfo! m4
 	    \ title='m4' cc='m4' src='-- %:.'
+
+" filetype nim {{{1
+
+au FileType nim SetExtensionName nim
+au FileType nim SetCompilerInfo! nim
+	    \ title='nim' cc='nim c' flags=''
+            \ cmd='!$cc $flags -o:$output $input'
 
 " filetype perl {{{1
 

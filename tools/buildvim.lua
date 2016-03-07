@@ -1,21 +1,40 @@
 -- options --
 local dstdir = [[\Vim\vim74]]
 local srcdir = [[\Work\Sources\Vim\src\]]
-local flags  = [[IME=yes CSCOPE=yes OLE=yes WINVER=0x0500]]
+local rtdir  = [[\Work\Sources\Vim\runtime\]]
+local flags  = [[DIRECTX=yes IME=yes CSCOPE=yes OLE=yes WINVER=0x0500]]
 local optflags = {
     user    = [[USERNAME=SW USERDOMAIN=SB_DiaoSi_Mo]],
     sdkdir   = [[SDK_INCLUDE_DIR="C:\Program Files\Microsoft SDKs\Windows\v7.1\Include"]],
     sdkdir64 = [[SDK_INCLUDE_DIR="C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include"]],
-    lua     = [[LUA=\Lua52 DYNAMIC_LUA=yes LUA_VER=52]],
+    lua     = [[LUA=\Lua53 DYNAMIC_LUA=yes LUA_VER=53]],
     mz      = [[MZSCHEME=\Racket DYNAMIC_MZSCHEME=yes MZSCHEME_VER=3m_9x82yo]],
-    perl    = [[PERL=\perl DYNAMIC_PERL=yes PERL_VER=516]],
+    perl    = [[PERL=\perl DYNAMIC_PERL=yes PERL_VER=522]],
     python  = [[PYTHON=\python27 DYNAMIC_PYTHON=yes PYTHON_VER=27]],
     python3 = [[PYTHON3=\python34 DYNAMIC_PYTHON3=yes PYTHON3_VER=34]],
-    ruby    = [[RUBY=\ruby191 DYNAMIC_RUBY=yes RUBY_VER=191 RUBY_VER_LONG=1.9.1]],
+    ruby    = [[RUBY=\ruby192 DYNAMIC_RUBY=yes RUBY_VER=192 RUBY_VER_LONG=1.9.1]],
     tcl     = [[TCL=\Tcl DYNAMIC_TCL=yes TCL_VER=86 TCL_VER_LONG=8.6]],
+    vs2015  = [[DEFINES="/GL /GS- /O2 /Oy /Oi"]],
 }
-local uses = { "user", "sdkdir64", "lua", "perl", "python", "python3", "tcl" }
+local uses = { "vs2015", "user", "sdkdir64", "lua", "perl", "python", "python3", "tcl" }
 -- end --
+
+if arg[1] == "copy" then
+   local runtimes = {
+      "autoload", "colors", "compiler",
+      "ftplugin", "indent",
+      "keymap", "lang", "macros",
+      "plugin", "print", "spell",
+      "syntax", "tools", "tutor",
+   }
+   for k, v in ipairs(runtimes) do
+      os.execute("xcopy>nul /i/s/q/y "..rtdir..v.." "..dstdir.."\\"..v)
+   end
+   os.execute("xcopy>nul /i/s/q/y "..rtdir.."doc\\*.txt".." "..dstdir.."\\doc")
+   os.execute("copy>nul /y "..rtdir.."*.vim".." "..dstdir)
+   os.execute("copy>nul /y "..rtdir.."rgb.txt".." "..dstdir)
+   return
+end
 
 -- parse argument options
 for i, curarg in ipairs(arg) do
@@ -56,3 +75,4 @@ if spawn("nmake -f Make_mvc.mak GUI=yes "..flags) then
         os.execute("copy "..srcdir.."vim.exe "..dstdir)
     end
 end
+

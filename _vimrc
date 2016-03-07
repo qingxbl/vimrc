@@ -36,7 +36,7 @@ set completeopt=longest,menu
 set diffopt+=vertical
 set display=lastline
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,latin1
-set formatoptions=tcqjmB2
+set formatoptions=tcqmB2
 set grepprg=grep\ -rn\ 
 set history=1000
 set modeline " for debian.vim, changed the initial value
@@ -53,6 +53,9 @@ set wildmenu
 
 " new in Vim 7.3 {{{2
 
+if v:version >= 703
+    set formatoptions+=j
+endif
 if v:version >= 703 && has('persistent_undo')
     set undofile
 endif
@@ -128,13 +131,10 @@ if has('win32') " {{{2
         silent! so $VIMRUNTIME/delmenu.vim
         silent! so $VIMRUNTIME/menu.vim
     endif
-    if !empty($CONEMUBUILD)
-        set term=xterm
-        set t_Co=16
-        let &t_AB="\e[48;5;%dm"
-        let &t_AF="\e[38;5;%dm"
-    endif
 
+    if has("directx")
+        "set renderoptions=type:directx,geom:1
+    endif
 
 elseif has('unix') " {{{2
     if &term == 'linux'
@@ -200,6 +200,7 @@ if has('eval')
                     \  ['mingw',  'minGW/bin'        ],
                     \  ['minsys', 'minSYS/bin'       ],
                     \  ['mingw',  'minSYS/mingw/bin' ],
+                    \  ['nim',    'nim/bin'          ],
                     \  ['lua53',  'lua53'            ],
                     \  ['lua52',  'lua52'            ],
                     \  ['lua51',  'lua51'            ],
@@ -353,6 +354,7 @@ if has('autocmd')
                     \|      set sw=4 ts=8 sts=4 et sta nu fdc=2 fo-=t
                     \|  endif
         au FileType lua se sw=3 sts=3 ts=3 et
+        au FileType nim se sw=2 sts=2 ts=2 nu et fdm=marker fdc=2
         au FileType javascript se sw=2 sts=2 ts=2 et fdc=2 fdm=syntax
         au FileType cs se ai nu noet sw=4 sts=4 ts=4 fdc=2 fdm=syntax
         au FileType javascript if exists("*JavaScriptFold")
@@ -899,9 +901,12 @@ Plugin 'chriskempson/base16-vim'
 
 " Language-spec
 Plugin 'wting/rust.vim'
+Plugin 'zah/nim.vim'
 Plugin 'tikhomirov/vim-glsl'
 Plugin 'elzr/vim-json'
 Plugin 'thinca/vim-logcat'
+Plugin 'leafo/moonscript-vim'
+Plugin 'raymond-w-ko/vim-lua-indent'
 
 "Plugin 'xolox/vim-misc'  " required by lua.vim
 "Plugin 'xolox/vim-lua-ftplugin'  " Lua file type plug-in for the Vim text editor
@@ -1083,11 +1088,29 @@ let g:OmniCpp_MayCompleteArrow = 1
 let g:OmniCpp_MayCompleteScope = 1
 
 
+" multiple-cursors  {{{2
+
+let g:multi_cursor_exit_from_insert_mode = 0
+let g:multi_cursor_exit_from_visual_mode = 0
+
 " neocomplete {{{2
 
 let g:neocomplete#enable_at_startup = 1
 let g:neocomplete#data_directory = s:tprefix . "/swapfiles/neocomplete"
 
+" Called once right before you start selecting multiple cursors
+function! Multiple_cursors_before()
+  if exists(':NeoCompleteLock')==2
+    exe 'NeoCompleteLock'
+  endif
+endfunction
+
+" Called once only when the multiple selection is canceled (default <Esc>)
+function! Multiple_cursors_after()
+  if exists(':NeoCompleteUnlock')==2
+    exe 'NeoCompleteUnlock'
+  endif
+endfunction
 
 " UltiSnips {{{2
 
@@ -1150,9 +1173,12 @@ let g:surround_{char2nr("c")} = "/* \r */"
 
 " syntastic {{{2
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+if exists(':SyntasticStatuslineFlag')
+    set statusline+=%#warningmsg#
+    set statusline+=%{SyntasticStatuslineFlag()}
+    set statusline+=%*
+endif
+let g:syntastic_cpp_compiler_options='-std=c++11'
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 2
@@ -1189,6 +1215,10 @@ let g:VCSCommandMapPrefix = "<leader>vc"
 " nmap <leader>wm :<c-u>if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
 " map <F2> <leader>wm
 " imap <F2> <ESC><leader>wm
+
+" zip {{{2
+let g:loaded_zipPlugin= 1
+let g:loaded_zip      = 1
 
 " }}}2
 " VimShell {{{2

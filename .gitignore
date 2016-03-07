@@ -1,5 +1,5 @@
 bundle
-diary
+!bundle/Vundle.vim
 swapfiles
 vim7[0-9]
 _vim_mru_files
