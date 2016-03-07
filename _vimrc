@@ -143,7 +143,7 @@ elseif has('unix') " {{{2
 endif " }}}2
 " swapfiles/undofiles settings {{{2
 
-let s:tprefix = expand("~/.vim")
+let s:tprefix = expand("~/.vim/.cache")
 
 for dir in ['/swapfiles', '/backupfiles', '/undofiles']
     let s:dir = s:tprefix.dir
@@ -190,6 +190,11 @@ if has('eval')
         call s:let('$VIMDIR', fnamemodify(dir, ":p:h:h"))
         break
     endfor
+
+    " ~/.vim maybe use as vimfiles {{{3
+    if has("win32") && isdirectory(expand('~/.vim'))
+        set rtp+=~/.vim
+    endif
 
     " $PATH in win32 {{{3
     if has("win32")
@@ -729,8 +734,8 @@ endif
 
 " set buffer tabstop and sw and et
 
-" map <leader>1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
-" map <leader>2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
+map <leader>f1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
+map <leader>f2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
 
 " indent {{{3
 
@@ -818,9 +823,16 @@ map <M-S-K> <C-W>K
 map <M-S-H> <C-W>H
 map <M-S-L> <C-W>L
 
-" folder changing {{{3
-
-map <leader>cd :cd%:p:h<cr>
+" tab navigating {{{3
+nnoremap <leader>1 :tabnext 1<CR>
+nnoremap <leader>2 :tabnext 2<CR>
+nnoremap <leader>3 :tabnext 3<CR>
+nnoremap <leader>4 :tabnext 4<CR>
+nnoremap <leader>5 :tabnext 5<CR>
+nnoremap <leader>6 :tabnext 6<CR>
+nnoremap <leader>7 :tabnext 7<CR>
+nnoremap <leader>8 :tabnext 8<CR>
+nnoremap <leader>9 :tabnext 9<CR>
 
 " save {{{3
 
@@ -835,18 +847,13 @@ imap <F1> <ESC><F1>
 " in cmode, it means print time
 cnoremap <f1> <C-R>=escape(strftime("%Y-%m-%d %H:%M:%S"), '\ ')<CR>
 
-" f2: winmanager {{{4
+" f2: VimFilerExplorer {{{4
+map <F2> :VimFilerExplorer<CR>
+imap <F2> <ESC><F2>
 
 " f3: shell {{{4
-
-if !has('win32')
-    map <F3> :<C-U>!gnome-terminal &<CR>:call feedkeys("\<lt>CR>")<CR>
-elseif executable('sh.exe')
-    map <F3> :<C-U>!start sh.exe --login -i<CR>
-else
-    map <F3> :<C-U>!start cmd.exe<CR>
-endif
-imap <F3> <ESC><F3>a
+map <F3> :VimShellTab<CR>
+imap <F3> <ESC><F3>
 
 " f4: clear hlsearch and qf/loc window {{{4
 map <F4> :<C-U>noh\|pcl\|ccl\|lcl<CR>
@@ -866,37 +873,36 @@ if has('eval')
 
 filetype off
 
-let s:bundle_path = has("win32") ? '$VIM/vimfiles/bundle' : '~/.vim/bundle'
-let &rtp .= ','.s:bundle_path.'/Vundle.vim'
-call vundle#begin(s:bundle_path)
+let s:bundlePath=expand('<sfile>:p:h').'/bundle'
+let &rtp.=','.s:bundlePath.'/Vundle.vim'
+call vundle#begin(s:bundlePath)
+unlet s:bundlePath
 
-Plugin 'L9'
-Plugin 'calendar.vim--Matsumoto'
+if exists(':Plugin')
 Plugin 'hexman.vim'
 
 Plugin 'gmarik/Vundle.vim'
 Plugin 'Lokaltog/vim-easymotion'
 Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-surround'
 Plugin 'bling/vim-airline'
 Plugin 'Shougo/neomru.vim'
 Plugin 'Shougo/unite.vim'
+Plugin 'Shougo/unite-outline'
+Plugin 'Shougo/neossh.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/vimshell.vim'
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'Shougo/vimfiler.vim'
 Plugin 'yianwillis/vimcdoc'
-Plugin 'chrisbra/Recover.vim'
-Plugin 'chrisbra/histwin.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'jiangmiao/auto-pairs'
-Plugin 'majutsushi/tagbar'
 Plugin 'mbbill/echofunc'
 Plugin 'nathanaelkane/vim-indent-guides'
 Plugin 'qingxbl/Mark--Karkat'
 Plugin 'scrooloose/nerdcommenter'
-Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
-Plugin 'tomtom/tlib_vim'
-Plugin 'tpope/vim-surround'
+Plugin 'dyng/ctrlsf.vim'
+Plugin 'terryma/vim-multiple-cursors'
 Plugin 'chriskempson/base16-vim'
 
 " Language-spec
@@ -908,16 +914,22 @@ Plugin 'thinca/vim-logcat'
 Plugin 'leafo/moonscript-vim'
 Plugin 'raymond-w-ko/vim-lua-indent'
 
+if glob(expand('<sfile>:p:h').'/_enableYouCompleteMe') != ''
+    Plugin 'Valloric/YouCompleteMe'
+endif
+
 "Plugin 'xolox/vim-misc'  " required by lua.vim
 "Plugin 'xolox/vim-lua-ftplugin'  " Lua file type plug-in for the Vim text editor
 
 call vundle#end()
+endif
 filetype plugin indent on
 
 " colorscheme {{{2
+let base16colorspace=256
 silent! colorscheme base16-tomorrow
 set background=dark
-" }}}2
+
 " Easy Vim {{{2
 
 if &insertmode
@@ -930,26 +942,6 @@ let html_dynamic_folds = 1
 let html_ignore_conceal = 1
 let html_no_pre = 1
 let html_use_css = 1
-
-" calendar {{{2
-
-for dir in ['~', $VIM, $VIM.'/..', $PRJDIR, $PRJDIR.'/..']
-    if isdirectory(dir.'/diary')
-        let g:calendar_diary = s:globfirst(dir.'/diary')
-        break
-
-    elseif isdirectory(dir.'/Diary')
-        let g:calendar_diary = s:globfirst(dir.'/Diary')
-        break
-    endif
-endfor
-
-let g:calendar_focus_today = 1
-
-nmap <leader>da <leader>cal<CR>Go<CR><C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR><CR>
-nmap <leader>DA <leader>caL<CR>Go<CR><C-R>=strftime("%Y-%m-%d %H:%M:%S")<CR><CR>
-xmap <leader>da "dy<leader>da<BS> - 摘要：<CR><ESC>"dP
-xmap <leader>DA "dy<leader>DA<BS> - 摘要：<CR><ESC>"dP
 
 " ctk {{{2
 
@@ -966,94 +958,12 @@ let g:EasyGrepMode=2 " TrackExt
 let g:EasyGrepCommand = 1
 
 
-" fuzzyfinder {{{2
-
-"let g:fuf_modesDisable = []
-"let g:fuf_mrufile_maxItem = 400
-"let g:fuf_mrucmd_maxItem = 400
-"nnoremap <silent> <leader>s,     :FufBufferTag<CR>
-"vnoremap <silent> <leader>s,     :FufBufferTagWithSelectedText!<CR>
-"nnoremap <silent> <leader>s.     :FufBufferTagAll<CR>
-"vnoremap <silent> <leader>s.     :FufBufferTagAllWithSelectedText!<CR>
-"nnoremap <silent> <leader>s<     :FufBufferTag!<CR>
-"vnoremap <silent> <leader>s<     :FufBufferTagWithSelectedText<CR>
-"nnoremap <silent> <leader>s>     :FufBufferTagAll!<CR>
-"vnoremap <silent> <leader>s>     :FufBufferTagAllWithSelectedText<CR>
-"nnoremap <silent> <leader>s]     :FufBufferTagAllWithCursorWord!<CR>
-"nnoremap <silent> <leader>s<C-]> :FufTagWithCursorWord!<CR>
-"nnoremap <silent> <leader>s}     :FufBufferTagWithCursorWord!<CR>
-"nnoremap <silent> <leader>sd     :FufDirWithCurrentBufferDir<CR>
-"nnoremap <silent> <leader>sD     :FufDirWithFullCwd<CR>
-"nnoremap <silent> <leader>s<C-d> :FufDir<CR>
-"nnoremap <silent> <leader>se     :FufEditDataFile<CR>
-"nnoremap <silent> <leader>sG     :FufTaggedFile!<CR>
-"nnoremap <silent> <leader>sg     :FufTaggedFile<CR>
-"nnoremap <silent> <leader>sh     :FufHelp<CR>
-"nnoremap <silent> <leader>si     :FufBookmarkDir<CR>
-"nnoremap <silent> <leader>s<C-i> :FufBookmarkDirAdd<CR>
-"nnoremap <silent> <leader>sj     :FufBuffer<CR>
-"nnoremap <silent> <leader>sk     :FufFileWithCurrentBufferDir<CR>
-"nnoremap <silent> <leader>sK     :FufFileWithFullCwd<CR>
-"nnoremap <silent> <leader>s<C-k> :FufFile<CR>
-"nnoremap <silent> <leader>sl     :FufCoverageFileChange<CR>
-"nnoremap <silent> <leader>sL     :FufCoverageFileChange<CR>
-"nnoremap <silent> <leader>s<C-l> :FufCoverageFileRegister<CR>
-"nnoremap <silent> <leader>sm     :FufMruCmd<CR>
-"nnoremap <silent> <leader>sn     :FufMruFile<CR>
-"nnoremap <silent> <leader>sN     :FufMruFileInCwd<CR>
-"nnoremap <silent> <leader>so     :FufJumpList<CR>
-"nnoremap <silent> <leader>sp     :FufChangeList<CR>
-"nnoremap <silent> <leader>sq     :FufQuickfix<CR>
-"nnoremap <silent> <leader>sr     :FufRenewCache<CR>
-"nnoremap <silent> <leader>sT     :FufTag!<CR>
-"nnoremap <silent> <leader>st     :FufTag<CR>
-"nnoremap <silent> <leader>su     :FufBookmarkFile<CR>
-"nnoremap <silent> <leader>s<C-u> :FufBookmarkFileAdd<CR>
-"vnoremap <silent> <leader>s<C-u> :FufBookmarkFileAddAsSelectedText<CR>
-"nnoremap <silent> <leader>sy     :FufLine<CR>
-
-
 " indent guide {{{2
 
 let g:indent_guides_guide_size=1
 
 
-" minibufexpl {{{2
-
-" If you like control + vim direction key to navigate
-" windows then perform the remapping
-noremap <C-J>     <C-W>j
-noremap <C-K>     <C-W>k
-noremap <C-H>     <C-W>h
-noremap <C-L>     <C-W>l
-
-" If you like control + arrow key to navigate windows
-" then perform the remapping
-noremap <C-Down>  <C-W>j
-noremap <C-Up>    <C-W>k
-noremap <C-Left>  <C-W>h
-noremap <C-Right> <C-W>l
-
-nnoremap <leader>on :on<BAR>MBEOpen<CR>
-xnoremap <leader>on <ESC>:on<BAR>MBEOpen<CR>
-
-
 " mru {{{2
-
-"let g:MRU_Check_File = 1
-"let g:MRU_Exclude_Files = '\c\v(\\|\/)%(Temp|Tmp)\1'
-"if has('win32')
-"    let g:MRU_File = expand($VIM.'/_vim_mru_files')
-"else
-"    let g:MRU_File = expand('~/.vim/_vim_mru_files')
-"endif
-"let g:MRU_Max_Entries = 1000
-"
-"menutrans Recent\ Files 最近使用的文件(&R)
-"menutrans Refresh\ list 刷新列表(&R)
-"
-"map <leader>u :<C-U>MRU<CR>
-"map <leader>ru :<C-U>MRU 
 
 let g:neomru#file_mru_path = s:tprefix.'/neomru/file'
 let g:neomru#directory_mru_path = s:tprefix.'/neomru/directory'
@@ -1061,76 +971,13 @@ let g:unite_data_directory = s:tprefix.'/unite'
 
 map <leader>u :Unite file_mru<CR>
 map <leader>uu :Unite file_mru<CR>
-map <leader>uf :Unite file<CR>
+map <leader>uf :Unite outline<CR>
 map <leader>ub :Unite buffer<CR>
-
-" NERDTree {{{2
-
-nmap <leader>nn :NERDTreeToggle<CR>
-xmap <leader>nn :<C-U>NERDTreeToggle<CR>
-map <leader>nf :<C-U>NERDTree %:h<CR>
-map <leader>np :<C-U>NERDTree $VIMDOR<CR>
-map <leader>ns :<C-U>NERDTree $PRJDIR<CR>
-map <leader>nv :<C-U>NERDTree $VIM<CR>
-nmap <leader>nx :NERDTree .<CR>
-xmap <leader>nx "ey:NERDTree <C-R>e<CR>
-
-" omnicppcomplete {{{2
-
-let g:OmniCpp_GlobalScopeSearch = 1  " 0 or 1
-let g:OmniCpp_NamespaceSearch = 1   " 0 ,  1 or 2
-let g:OmniCpp_DisplayMode = 1
-let g:OmniCpp_ShowScopeInAbbr = 0
-let g:OmniCpp_ShowPrototypeInAbbr = 1
-let g:OmniCpp_ShowAccess = 1
-let g:OmniCpp_MayCompleteDot = 1
-let g:OmniCpp_MayCompleteArrow = 1
-let g:OmniCpp_MayCompleteScope = 1
-
 
 " multiple-cursors  {{{2
 
 let g:multi_cursor_exit_from_insert_mode = 0
 let g:multi_cursor_exit_from_visual_mode = 0
-
-" neocomplete {{{2
-
-let g:neocomplete#enable_at_startup = 1
-let g:neocomplete#data_directory = s:tprefix . "/swapfiles/neocomplete"
-
-" Called once right before you start selecting multiple cursors
-function! Multiple_cursors_before()
-  if exists(':NeoCompleteLock')==2
-    exe 'NeoCompleteLock'
-  endif
-endfunction
-
-" Called once only when the multiple selection is canceled (default <Esc>)
-function! Multiple_cursors_after()
-  if exists(':NeoCompleteUnlock')==2
-    exe 'NeoCompleteUnlock'
-  endif
-endfunction
-
-" UltiSnips {{{2
-
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger = '<Tab>'
-let g:UltiSnipsListSnippets = '<C-Tab>'
-let g:UltiSnipsJumpForwardTrigger = '<Tab>'
-let g:UltiSnipsJumpBackwardTrigger = '<S-Tab>'
-
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-
-let g:UltiSnipsSnippetDirectories=['UltiSnips']
-
-if has('win32')
-    let g:UltiSnipsSnippetsDir = expand("$VIM/vimfiles/UltiSnips")
-else
-    let g:UltiSnipsSnippetsDir = expand("~/.vim/UltiSnips")
-endif
-
 
 " perl {{{2
 
@@ -1158,14 +1005,6 @@ let lua_complete_omni = 0
 
 
 
-" supertab {{{2
-
-let g:SuperTabDefaultCompletionType = "<C-N>"
-let g:SuperTabNoCompleteAfter = [ '^', ',', '\s' ]
-"let g:SuperTabCrMapping = 0 " incompatible with autopairs
-"let g:SuperTabLongestEnhanced = 1
-"let g:SuperTabLongestHighlight = 1
-
 " surround {{{2
 
 let g:surround_{char2nr("c")} = "/* \r */"
@@ -1185,36 +1024,9 @@ let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 1
 
-" taglist {{{2
-
-if !executable("ctags")
-    let g:loaded_taglist = 'no'
-else
-    let g:Tlist_Show_One_File = 1
-    let g:Tlist_Exit_OnlyWindow = 1
-endif
-
 " vcscommand {{{2
 
 let g:VCSCommandMapPrefix = "<leader>vc"
-
-" winmanager {{{2
-
-" let g:NERDTree_title="[NERD Tree]" 
-" let g:winManagerWindowLayout = 'NERDTree|TagList'
-" 
-" function! NERDTree_Start()
-"     exec 'NERDTree'
-" endfunction
-" 
-" function! NERDTree_IsValid()
-"     return 1
-" endfunction
-" 
-" 
-" nmap <leader>wm :<c-u>if IsWinManagerVisible() <BAR> WMToggle<CR> <BAR> else <BAR> WMToggle<CR>:q<CR> endif <CR><CR>
-" map <F2> <leader>wm
-" imap <F2> <ESC><leader>wm
 
 " zip {{{2
 let g:loaded_zipPlugin= 1
@@ -1225,44 +1037,21 @@ let g:loaded_zip      = 1
 let g:vimshell_data_directory = s:tprefix.'/vimshell'
 let g:vimshell_enable_smart_case = 1
 let g:vimshell_prompt = '> '
-map <F3> :VimShellTab<CR>
 
 " }}}2
 " YouCompleteMe {{{2
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_global_ycm_extra_conf = expand(s:bundle_path.'/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py')
-let g:ycm_server_keep_logfiles = 1
 
-" }}}2
-" Tagbar {{{2
-map <F2> :TagbarToggle<CR>
-imap <F2> <ESC>:TagbarToggle<CR>
+" VimFiler {{{2
 
-" }}}2
+" Disable netrw.vim
+let g:loaded_netrwPlugin = 1
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_data_directory = s:tprefix.'/vimfiler'
+
 " airline {{{2
-function! s:switch_tab(i)
-    let curtabcnt = tabpagenr('$')
-    if curtabcnt != 1
-        exec 'tabnext '.a:i
-    elseif exists('<Plug>AirlineSelectTab'.a:i)
-        exec '<Plug>AirlineSelectTab'.a:i
-    else
-        exec 'b!'.a:i
-    endif
-endfunction
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_idx_mode = 1
-let g:airline#extensions#tabline#tab_nr_type = 1
 let g:airline_powerline_fonts = 1
-nmap <leader>1 :call <SID>switch_tab(1)<CR>
-nmap <leader>2 :call <SID>switch_tab(2)<CR>
-nmap <leader>3 :call <SID>switch_tab(3)<CR>
-nmap <leader>4 :call <SID>switch_tab(4)<CR>
-nmap <leader>5 :call <SID>switch_tab(5)<CR>
-nmap <leader>6 :call <SID>switch_tab(6)<CR>
-nmap <leader>7 :call <SID>switch_tab(7)<CR>
-nmap <leader>8 :call <SID>switch_tab(8)<CR>
-nmap <leader>9 :call <SID>switch_tab(9)<CR>
+let g:airline_theme = 'base16_tomorrow'
 " }}}
 
 endif
