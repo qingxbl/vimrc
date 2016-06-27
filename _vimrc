@@ -232,6 +232,8 @@ if has('eval')
         set rtp+=~/.vim
     endif
 
+    " viminfo path {{{3
+    exec "set viminfo+=n".s:tprefix."/.viminfo"
     " $PATH in win32 {{{3
     if has("win32")
         call s:let('$PATH', s:globfirst($VIM."/vimfiles/tools").";".$PATH)
@@ -944,7 +946,6 @@ Plugin 'scrooloose/nerdcommenter'
 Plugin 'scrooloose/syntastic'
 Plugin 'dyng/ctrlsf.vim'
 Plugin 'terryma/vim-multiple-cursors'
-Plugin 'chriskempson/base16-vim'
 
 " Language-spec
 Plugin 'wting/rust.vim'
@@ -968,8 +969,8 @@ filetype plugin indent on
 
 " colorscheme {{{2
 let base16colorspace=256
-silent! colorscheme base16-tomorrow
 set background=dark
+silent! colorscheme base16-eighties
 
 " Easy Vim {{{2
 
@@ -1092,7 +1093,7 @@ let g:vimfiler_data_directory = s:tprefix.'/vimfiler'
 
 " airline {{{2
 let g:airline_powerline_fonts = 1
-let g:airline_theme = 'base16_tomorrow'
+let g:airline_theme = 'base16_eighties'
 " }}}
 
 endif
