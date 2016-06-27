@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (1902)
-" Last Change:  2014-07-01 15:42:41
+" Version:      0.5 (1926)
+" Last Change:  2016-06-11 16:20:58
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -53,7 +53,7 @@ set wildmenu
 
 " new in Vim 7.3 {{{2
 
-if v:version >= 703
+if v:version > 703
     set formatoptions+=j
 endif
 if v:version >= 703 && has('persistent_undo')
@@ -115,13 +115,15 @@ if has('gui_running') " {{{2
         silent! set gfn=Consolas:h9
         "silent! set gfw=YaHei_Mono:h10:cGB2312
         "exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
+    elseif has('mac')
+        set gfn=Monaco:h10
     else
         "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
-        set gfn=Monospace\ 9
+        set gfn=DejaVu\ Sans\ Mono\ 9
     endif
 
 endif " }}}2
-if has('win32') " {{{2
+if has("win32") " {{{2
     if $LANG =~? 'zh_CN' && &encoding !=? "cp936"
         set termencoding=cp936
 
@@ -140,6 +142,40 @@ elseif has('unix') " {{{2
     if &term == 'linux'
         " lang C
     endif
+    if exists('$TMUX')
+        set term=screen-256color
+    endif
+    if exists('$ITERM_PROFILE')
+        if exists('$TMUX')
+            let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+            let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+        elseif has('gui_running')
+            let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+            let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+        endif
+    end
+    function! WrapForTmux(s)
+        if !exists('$TMUX')
+            return a:s
+        endif
+
+        let tmux_start = "\<Esc>Ptmux;"
+        let tmux_end = "\<Esc>\\"
+
+        return tmux_start.substitute(a:s, "\<Esc>", "\<Esc>\<Esc>", 'g').tmux_end
+    endfunction
+
+    function! XTermPasteBegin()
+        set pastetoggle=<Esc>[201~
+        set paste
+        return ""
+    endfunction
+
+    if !has('gui_running')
+        let &t_SI .= WrapForTmux("\<Esc>[?2004h")
+        let &t_EI .= WrapForTmux("\<Esc>[?2004l")
+        inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
+    endif
 endif " }}}2
 " swapfiles/undofiles settings {{{2
 
@@ -157,7 +193,7 @@ for dir in ['/swapfiles', '/backupfiles', '/undofiles']
 endfor
 
 if isdirectory(s:tprefix.'/swapfiles')
-    let &directory=s:tprefix.'/swapfiles'
+    let &directory=s:tprefix."/swapfiles"
 endif
 if isdirectory(s:tprefix.'/backupfiles')
     let &backupdir=s:tprefix."/backupfiles"
@@ -426,7 +462,8 @@ com! -nargs=1 -bang Qfdo :call QFDo(<bang>0,<q-args>)
 " EX, EV, EF, ES, EP {{{3
 
 function! s:open_explorer(fname)
-    let exec = has('win32') ? '!start explorer' : '!nautilus'
+    let exec = has('win32') ? '!start explorer'  :
+                \ has('mac') ? '!open -R' : '!nautilus'
     let fname = matchstr(glob(a:fname), '^\v.{-}\ze(\n|$)')
 
     if fname == ""
@@ -436,8 +473,12 @@ function! s:open_explorer(fname)
         if has('win32')
             "exec exec '/select,'.iconv(fname, &enc, &tenc)
             exec exec '/select,'.fname
+        elseif has('mac')
+            exec exec iconv(fnamemodify(fname, ':p'), &enc, &tenc)
+            call feedkeys("\<CR>")
         else
             exec exec iconv(fnamemodify(fname, ':h'), &enc, &tenc)
+            call feedkeys("\<CR>")
         endif
     else
         "exec exec iconv(fname, &enc, &tenc)
@@ -577,7 +618,7 @@ command! -bar -range=% DLN
   
 " Font Size {{{3
 
-let s:gf_pat = has('win32') ? 'h\zs\d\+' : '\d\+$'
+let s:gf_pat = has('win32') || has('mac') ? 'h\zs\d\+' : '\d\+$'
 command! -bar -count=10 FSIZE let &gfn = substitute(&gfn, s:gf_pat,
             \ <count>, '') | let &gfw = substitute(&gfw, s:gf_pat,
             \ <count>, '')
@@ -754,7 +795,7 @@ map <leader>qk :<C-U>cp!<CR>
 inor <m-n> <c-n>
 inor <m-p> <c-p>
 
-" vi?sual # and * operators {{{3
+" visual # and * operators {{{3
 
 xnor<silent> # "sy?\V<C-R>=substitute(escape(@s, '\?'), '\n', '\\n', 'g')<CR><CR>
 xnor<silent> * "sy/\V<C-R>=substitute(escape(@s, '\/'), '\n', '\\n', 'g')<CR><CR>
