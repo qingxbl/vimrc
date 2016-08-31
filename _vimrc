@@ -179,7 +179,8 @@ elseif has('unix') " {{{2
 endif " }}}2
 " swapfiles/undofiles settings {{{2
 
-let s:tprefix = expand("~/.vim/.cache")
+let s:vimrcpath = fnamemodify(resolve(expand('<sfile>:p')), ':h')
+let s:tprefix = s:vimrcpath.'/.cache'
 
 for dir in ['/swapfiles', '/backupfiles', '/undofiles']
     let s:dir = s:tprefix.dir
@@ -916,7 +917,7 @@ if has('eval')
 
 filetype off
 
-let s:bundlePath=expand('<sfile>:p:h').'/bundle'
+let s:bundlePath=s:vimrcpath.'/bundle'
 let &rtp.=','.s:bundlePath.'/Vundle.vim'
 call vundle#begin(s:bundlePath)
 unlet s:bundlePath
@@ -956,7 +957,7 @@ Plugin 'thinca/vim-logcat'
 Plugin 'leafo/moonscript-vim'
 Plugin 'raymond-w-ko/vim-lua-indent'
 
-if glob(expand('<sfile>:p:h').'/_enableYouCompleteMe') != ''
+if glob(s:vimrcpath.'/_enableYouCompleteMe') != ''
     Plugin 'Valloric/YouCompleteMe'
 endif
 
