@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (1943)
-" Last Change:  2016-07-31 17:56:10
+" Version:      0.5 (1988)
+" Last Change:  2016-11-27 00:25:12
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -139,8 +139,11 @@ if has("win32") " {{{2
     endif
 
 elseif has('unix') " {{{2
-    if &term == 'linux'
-        " lang C
+    if has('gui_running')
+        lang mes zh_CN.UTF-8
+        set langmenu=zh_CN.UTF-8
+        silent! so $VIMRUNTIME/delmenu.vim
+        silent! so $VIMRUNTIME/menu.vim
     endif
     if exists('$TMUX')
         set term=screen-256color
@@ -253,7 +256,7 @@ if has('eval')
                     \  ['perl',   'perl/perl/bin'    ],
                     \  ['python', 'Python'           ],
                     \  ['python', 'Python27'         ],
-                    \  ['python', 'Python31'         ],
+                    \  ['python', 'Python35'         ],
                     \  ['msys64', 'msys64/usr/bin'   ],
                     \  ['msys2_mingw64', 'msys64/mingw64/bin'],
                     \  ['rust',   'Rust/bin'         ]]
@@ -416,17 +419,17 @@ if has('autocmd')
             au VimLeave * cs kill -1
         endif
 
-    " Don't screw up folds when inserting text that might affect them, until
-    " leaving insert mode. Foldmethod is local to the window. Protect against
-    " screwing up folding when switching between windows.
-    autocmd InsertEnter *
-                \  if !exists('w:last_fdm')
-                \|     let w:last_fdm=&foldmethod | setlocal foldmethod=manual
-                \| endif
-    autocmd InsertLeave,WinLeave *
-                \  if exists('w:last_fdm')
-                \|     let &l:foldmethod=w:last_fdm | unlet w:last_fdm
-                \| endif
+        " Don't screw up folds when inserting text that might affect them, until
+        " leaving insert mode. Foldmethod is local to the window. Protect against
+        " screwing up folding when switching between windows.
+        autocmd InsertEnter *
+                    \  if !exists('w:last_fdm')
+                    \|     let w:last_fdm=&foldmethod | setlocal foldmethod=manual
+                    \| endif
+        autocmd InsertLeave,WinLeave *
+                    \  if exists('w:last_fdm')
+                    \|     let &l:foldmethod=w:last_fdm | unlet w:last_fdm
+                    \| endif
 
     augroup END
 endif
@@ -700,6 +703,7 @@ map <leader>f+ :<C-U>setf cpp<CR>
 map <leader>fc :<C-U>setf c<CR>
 map <leader>fC :<C-U>setf clojure<CR>
 map <leader>fd :<C-U>setf dot<CR>
+map <leader>fg :<C-U>setf go<CR>
 map <leader>fh :<C-U>setf haskell<CR>
 map <leader>fj :<C-U>setf java<CR>
 map <leader>fl :<C-U>setf lua<CR>
@@ -795,8 +799,8 @@ map <leader>qk :<C-U>cp!<CR>
 
 " quick complete (against supertab) {{{3
 
-inor <m-n> <c-n>
-inor <m-p> <c-p>
+"inor <m-n> <c-n>
+"inor <m-p> <c-p>
 
 " visual # and * operators {{{3
 
@@ -939,7 +943,8 @@ Plugin 'Shougo/vimshell.vim'
 Plugin 'Shougo/vimfiler.vim'
 Plugin 'yianwillis/vimcdoc'
 Plugin 'godlygeek/tabular'
-Plugin 'jiangmiao/auto-pairs'
+Plugin 'Raimondi/delimitMate'
+"Plugin 'jiangmiao/auto-pairs'
 Plugin 'mbbill/echofunc'
 Plugin 'nathanaelkane/vim-indent-guides'
 Plugin 'qingxbl/Mark--Karkat'
@@ -949,6 +954,7 @@ Plugin 'dyng/ctrlsf.vim'
 Plugin 'terryma/vim-multiple-cursors'
 
 " Language-spec
+Plugin 'OrangeT/vim-csharp'
 Plugin 'wting/rust.vim'
 Plugin 'zah/nim.vim'
 Plugin 'tikhomirov/vim-glsl'
@@ -994,6 +1000,13 @@ amenu 1.247 ToolBar.BuiltIn15 :RUN<CR>
 tmenu ToolBar.BuiltIn15 CTK Run
 amenu 1.248 ToolBar.-sep5-1- <Nop>
 
+
+
+" delimitMate {{{2
+
+let g:delimitMate_expand_space = 1
+let g:delimitMate_expand_cr    = 2
+let g:delimitMate_jump_expansion = 1
 
 " EasyGrep {{{2
 

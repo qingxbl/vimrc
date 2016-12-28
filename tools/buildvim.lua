@@ -1,5 +1,5 @@
 -- options --
-local dstdir = [[\Vim\vim74]]
+local dstdir = [[\Vim\vim80]]
 local srcdir = [[\Work\Sources\Vim\src\]]
 local rtdir  = [[\Work\Sources\Vim\runtime\]]
 local flags  = [[DIRECTX=yes IME=yes CSCOPE=yes OLE=yes WINVER=0x0500]]
@@ -16,13 +16,13 @@ local optflags = {
     tcl     = [[TCL=\Tcl DYNAMIC_TCL=yes TCL_VER=86 TCL_VER_LONG=8.6]],
     vs2015  = [[DEFINES="/GL /GS- /O2 /Oy /Oi"]],
 }
-local uses = { "vs2015", "user", "sdkdir64", "lua", "perl", "python", "python3", "tcl" }
+local uses = { "vs2015", "user", "sdkdir64", "lua", "perl", "python3", "tcl" }
 -- end --
 
 if arg[1] == "copy" then
    local runtimes = {}
    for dir in io.popen("dir /A:D /B "..rtdir, "r"):lines() do
-      if dir ~= 'icons' then
+      if dir ~= 'icons' and dir ~= 'print' then
          runtimes[#runtimes+1] = dir
       end
    end
