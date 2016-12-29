@@ -184,6 +184,18 @@ endif " }}}2
 
 let s:vimrcpath = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 let s:tprefix = s:vimrcpath.'/.cache'
+if isdirectory(expand('~/.config'))
+    let s:tprefix = expand('~/.config/.cache')
+endif
+
+function s:rtp_fix()
+    set rtp-=~/.vim
+    set rtp-=~/.vim/after
+    exec 'set rtp^='.s:vimrcpath
+    exec 'set rtp^='.s:vimrcpath.'/after'
+endf
+
+call s:rtp_fix()
 
 for dir in ['/swapfiles', '/backupfiles', '/undofiles']
     let s:dir = s:tprefix.dir
@@ -929,7 +941,7 @@ unlet s:bundlePath
 if exists(':Plugin')
 Plugin 'hexman.vim'
 
-Plugin 'gmarik/Vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 Plugin 'Lokaltog/vim-easymotion'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-surround'
@@ -971,6 +983,7 @@ endif
 "Plugin 'xolox/vim-lua-ftplugin'  " Lua file type plug-in for the Vim text editor
 
 call vundle#end()
+call s:rtp_fix()
 endif
 filetype plugin indent on
 
