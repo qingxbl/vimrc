@@ -183,10 +183,7 @@ endif " }}}2
 " swapfiles/undofiles settings {{{2
 
 let s:vimrcpath = fnamemodify(resolve(expand('<sfile>:p')), ':h')
-let s:tprefix = s:vimrcpath.'/.cache'
-if isdirectory(expand('~/.config'))
-    let s:tprefix = expand('~/.config/.cache')
-endif
+let s:tprefix = expand('~/.cache')
 
 function s:rtp_fix()
     set rtp-=~/.vim
