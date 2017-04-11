@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (1988)
-" Last Change:  2016-11-27 00:25:12
+" Version:      0.5 (2026)
+" Last Change:  2017-04-10 22:21:59
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -35,7 +35,7 @@ set complete-=i
 set completeopt=longest,menu
 set diffopt+=vertical
 set display=lastline
-set fileencodings=ucs-bom,utf-8,cp936,gb18030,latin1
+set fileencodings=ucs-bom,utf-8,cp932,cp936,gb18030,latin1
 set formatoptions=tcqmB2
 set grepprg=grep\ -rn\ 
 set history=1000
@@ -400,17 +400,19 @@ if has('autocmd')
 
         au!
         au BufFilePost * filetype detect|redraw
-        au BufWritePre $MYVIMRC silent call s:vimrc_write()
+        au BufWritePre $MYVIMRC,_vimrc silent call s:vimrc_write()
         au BufReadPost * if getfsize(expand('%')) < 50000 | syn sync fromstart | endif
         "au BufWritePre * let &backup = (getfsize(expand('%')) > 500000)
         au BufNewFile,BufRead *.vba set noml
-        au FileType clojure,dot,lua,haskell,m4,perl,python,ruby,scheme,tcl,vim,javascript
+        au FileType clojure,dot,lua,haskell,m4,perl,python,ruby,scheme,tcl,vim,javascript,erlang
                     \   if !exists('b:ft') || b:ft != &ft
                     \|      let b:ft = &ft
-                    \|      set sw=4 ts=8 sts=4 et sta nu fdc=2 fo-=t
+                    \|      set sw=4 ts=8 sts=4 nu et sta fdc=2 fo-=t
                     \|  endif
         au FileType lua se sw=3 sts=3 ts=3 et
+        au FileType lua let b:syntastic_checkers=['luacheck', 'lua']
         au FileType nim se sw=2 sts=2 ts=2 nu et fdm=marker fdc=2
+        au FileType erlang se sw=2 sts=2 fdm=marker fdc=2
         au FileType javascript se sw=2 sts=2 ts=2 et fdc=2 fdm=syntax
         au FileType cs se ai nu noet sw=4 sts=4 ts=4 fdc=2 fdm=syntax
         au FileType javascript if exists("*JavaScriptFold")
@@ -939,7 +941,7 @@ if exists(':Plugin')
 Plugin 'hexman.vim'
 
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'Lokaltog/vim-easymotion'
+Plugin 'easymotion/vim-easymotion'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-surround'
 Plugin 'bling/vim-airline'
@@ -950,6 +952,7 @@ Plugin 'Shougo/neossh.vim'
 Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/vimshell.vim'
 Plugin 'Shougo/vimfiler.vim'
+Plugin 'Shougo/vinarise.vim'
 Plugin 'yianwillis/vimcdoc'
 Plugin 'godlygeek/tabular'
 Plugin 'Raimondi/delimitMate'
@@ -963,6 +966,7 @@ Plugin 'dyng/ctrlsf.vim'
 Plugin 'terryma/vim-multiple-cursors'
 
 " Language-spec
+Plugin 'Shutnik/jshint2.vim'
 Plugin 'OrangeT/vim-csharp'
 Plugin 'wting/rust.vim'
 Plugin 'zah/nim.vim'
@@ -971,6 +975,7 @@ Plugin 'elzr/vim-json'
 Plugin 'thinca/vim-logcat'
 Plugin 'leafo/moonscript-vim'
 Plugin 'raymond-w-ko/vim-lua-indent'
+Plugin 'vim-erlang/vim-erlang-runtime'
 
 if glob(s:vimrcpath.'/_enableYouCompleteMe') != ''
     Plugin 'Valloric/YouCompleteMe'
@@ -1002,6 +1007,27 @@ let html_ignore_conceal = 1
 let html_no_pre = 1
 let html_use_css = 1
 
+" airline {{{2
+
+let g:airline_symbols_ascii=1
+
+let g:airline_mode_map = {
+            \ '__' : '-',
+            \ 'n'  : 'N',
+            \ 'i'  : 'I',
+            \ 'R'  : 'R',
+            \ 'c'  : 'C',
+            \ 'v'  : 'V',
+            \ 'V'  : 'VL',
+            \ '' : 'VB',
+            \ 's'  : 'S',
+            \ 'S'  : 'SL',
+            \ '' : 'SB',
+            \ }
+
+let g:airline_powerline_fonts = 1
+let g:airline_theme = 'base16_eighties'
+
 " ctk {{{2
 
 amenu 1.246 ToolBar.BuiltIn25 :CC<CR>
@@ -1016,7 +1042,8 @@ amenu 1.248 ToolBar.-sep5-1- <Nop>
 
 let g:delimitMate_expand_space = 1
 let g:delimitMate_expand_cr    = 2
-let g:delimitMate_jump_expansion = 1
+let g:delimitMate_jump_expansion = 0
+
 
 " EasyGrep {{{2
 
@@ -1115,9 +1142,6 @@ let g:loaded_netrwPlugin = 1
 let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_data_directory = s:tprefix.'/vimfiler'
 
-" airline {{{2
-let g:airline_powerline_fonts = 1
-let g:airline_theme = 'base16_eighties'
 " }}}
 
 endif
