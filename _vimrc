@@ -938,7 +938,6 @@ call vundle#begin(s:bundlePath)
 unlet s:bundlePath
 
 if exists(':Plugin')
-Plugin 'hexman.vim'
 
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'easymotion/vim-easymotion'
