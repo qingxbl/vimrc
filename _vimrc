@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2026)
-" Last Change:  2017-04-10 22:21:59
+" Version:      0.5 (2073)
+" Last Change:  2017-12-07 11:13:19
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -36,6 +36,7 @@ set completeopt=longest,menu
 set diffopt+=vertical
 set display=lastline
 set fileencodings=ucs-bom,utf-8,cp932,cp936,gb18030,latin1
+set fileformats=unix,dos
 set formatoptions=tcqmB2
 set grepprg=grep\ -rn\ 
 set history=1000
@@ -116,7 +117,7 @@ if has('gui_running') " {{{2
         "silent! set gfw=YaHei_Mono:h10:cGB2312
         "exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
     elseif has('mac')
-        set gfn=Monaco:h10
+        set gfn=Monaco:h14
     else
         "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
         set gfn=DejaVu\ Sans\ Mono\ 9
@@ -738,8 +739,8 @@ map <leader>as :!astyle -oO -snwpYHU --style=kr --mode=c<CR>
 " run current line {{{3
 nmap <leader>rc :exec getline('.')[col('.')-1:]<CR>
 xmap <leader>rc y:exec @"<CR>
-nmap <leader>ec :echo eval(getline('.'))[col('.')-1:]<CR>
-xmap <leader>ec y:echo eval(@")<CR>
+nmap <leader>rv :echo eval(getline('.'))[col('.')-1:]<CR>
+xmap <leader>rv y:echo eval(@")<CR>
 
 " get syntax stack {{{3
 " nmap<silent> <leader>gs :echo ""<bar>for id in synstack(line('.'),col('.'))
@@ -1036,6 +1037,10 @@ tmenu ToolBar.BuiltIn15 CTK Run
 amenu 1.248 ToolBar.-sep5-1- <Nop>
 
 
+if executable('ag')
+    " Use Ag over Grep
+    set grepprg=ag\ --nogroup\ --nocolor
+endif
 
 " delimitMate {{{2
 
