@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2073)
-" Last Change:  2017-12-07 11:13:19
+" Version:      0.5 (2192)
+" Last Change:  2018-01-19 10:42:32
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -29,7 +29,7 @@ set cpo&vim " set cpo-=C cpo-=b
 
 " generic Settings {{{2
 
-"set ambiwidth=double
+set ambiwidth=single
 set bsdir=buffer
 set complete-=i
 set completeopt=longest,menu
@@ -66,26 +66,6 @@ endif
 
 set titlestring=%f%(\ %m%h%r%)\ -\ StarWing's\ Vim:\ %{v:servername}
 set laststatus=2
-"set statusline=
-"set statusline+=%2*%-3.3n%0*%<  " buffer number
-"set statusline+=%<\ %f  " file name
-"set statusline+=\ %1*%h%m%r%w%0* " flag
-"set statusline+=[
-"
-"if v:version >= 600
-"    set statusline+=%{&ft!=''?&ft:'noft'}, " filetype
-"    set statusline+=%{&fenc!=''?&fenc:&enc}, " fileencoding
-"endif
-"
-"set statusline+=%{&fileformat}] " file format
-"set statusline+=%= " right align
-""set statusline+=\ %2*0x%-8B  " current char
-"set statusline+=\ 0x%-8B  " current char
-"set statusline+=\ %-12.(%l,%c%V%)[%o]\ %P " offset
-
-if globpath(&rtp, "plugin/vimbuddy.vim") != ''
-    set statusline+=\ %{VimBuddy()} " vim buddy
-endif
 
 " helplang {{{2
 if v:version >= 603
@@ -113,11 +93,10 @@ if has('gui_running') " {{{2
     set co=120 lines=35
 
     if has('win32')
-        silent! set gfn=Consolas:h9
-        "silent! set gfw=YaHei_Mono:h10:cGB2312
+        silent! set gfn=Consolas:h9:qDRAFT
         "exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
     elseif has('mac')
-        set gfn=Monaco:h14
+        set gfn=Monaco\ for\ Powerline:h14
     else
         "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
         set gfn=DejaVu\ Sans\ Mono\ 9
@@ -216,6 +195,8 @@ if v:version >= 703 && isdirectory(s:tprefix.'/undofiles')
     let &undodir=s:tprefix."/undofiles"
 endif
 
+exec "set viminfo+=n".s:tprefix."/.viminfo"
+
 "}}}2
 " ----------------------------------------------------------
 " Helpers {{{1
@@ -225,7 +206,7 @@ if has('eval')
 
     " mapleader value {{{3
 
-    " let mapleader = ","
+    let mapleader = ","
 
     function! s:globfirst(pattern) " {{{3
         return simplify(split(glob(a:pattern), '\n', 1)[0])
@@ -241,13 +222,6 @@ if has('eval')
         break
     endfor
 
-    " ~/.vim maybe use as vimfiles {{{3
-    if has("win32") && isdirectory(expand('~/.vim'))
-        set rtp+=~/.vim
-    endif
-
-    " viminfo path {{{3
-    exec "set viminfo+=n".s:tprefix."/.viminfo"
     " $PATH in win32 {{{3
     if has("win32")
         call s:let('$PATH', s:globfirst($VIM."/vimfiles/tools").";".$PATH)
@@ -266,7 +240,7 @@ if has('eval')
                     \  ['perl',   'perl/perl/bin'    ],
                     \  ['python', 'Python'           ],
                     \  ['python', 'Python27'         ],
-                    \  ['python', 'Python35'         ],
+                    \  ['python', 'Python36'         ],
                     \  ['msys64', 'msys64/usr/bin'   ],
                     \  ['msys2_mingw64', 'msys64/mingw64/bin'],
                     \  ['rust',   'Rust/bin'         ]]
@@ -402,6 +376,7 @@ if has('autocmd')
         au!
         au BufFilePost * filetype detect|redraw
         au BufWritePre $MYVIMRC,_vimrc silent call s:vimrc_write()
+        au BufWritePre Y:/* set noundofile
         au BufReadPost * if getfsize(expand('%')) < 50000 | syn sync fromstart | endif
         "au BufWritePre * let &backup = (getfsize(expand('%')) > 500000)
         au BufNewFile,BufRead *.vba set noml
@@ -532,7 +507,7 @@ if has('gui_running')
     set go-=e
     let s:has_mt = glob("$VIM/_fullscreen") == "" &&
                 \  glob("$VIM/vimfiles/_fullscreen") == "" &&
-                \  glob("$HOME/.vim/_fullscreen") == ""
+                \  glob(s:vimrcpath."/_fullscreen") == ""
     if s:has_mt
         set go+=mT
     else
@@ -647,48 +622,7 @@ endif
 
 " Generic maps {{{2
 
-" explorer invoke {{{3
-
-map <leader>ef :<C-U>vsp %:h<CR>
-map <leader>ep :<C-U>vsp $VIMDOR<CR>
-map <leader>es :<C-U>vsp $PRJDIR<CR>
-map <leader>ev :<C-U>vsp $VIM<CR>
-nmap <leader>ex :vsp .<CR>
-xmap <leader>ex "ey:vsp <C-R>e<CR>
-
-" vim invoke {{{3
-
-if has('eval')
-    function! s:get_restart_arg()
-        if has('win32')
-            let cmdline = '!start '.v:progname.' -c "cd '
-        else
-            let cmdline = '!'.v:progname.' -c "cd '
-            call feedkeys("\<CR>")
-        end
-        if exists(":NERDTreeToggle") == 2
-            return cmdline.fnameescape(getcwd()).'|NERDTreeToggle|wincmd l"'
-        else
-            return cmdline.fnameescape(getcwd()).'"'
-        endif
-    endfunction
-    map <leader>vn :<C-U>exec <SID>get_restart_arg()<CR>
-    map <leader>vr :<C-U>exec <SID>get_restart_arg()<BAR>qa!<CR>
-    if has('win32')
-        map <leader>vi :<C-U>!start gvim<CR>
-    else
-        map <leader>vi :<C-U>!gvim<CR><CR>
-    end
-end
-
-" cd to current file folder {{{3
-
-map <leader>cd :<C-U>cd %:h<CR>
-
 " cmdline edit key, emacs style {{{3
-
-nnoremap <Space> :
-xnoremap <Space> :
 
 cnoremap <C-A> <Home>
 cnoremap <C-E> <End>
@@ -709,52 +643,6 @@ inoremap <C-B> <Left>
 "inoremap <C-P> <Up>
 inoremap <M-F> <S-Right>
 inoremap <M-B> <S-Left>
-
-" filetype settings {{{3
-map <leader>f+ :<C-U>setf cpp<CR>
-map <leader>fc :<C-U>setf c<CR>
-map <leader>fC :<C-U>setf clojure<CR>
-map <leader>fd :<C-U>setf dot<CR>
-map <leader>fg :<C-U>setf go<CR>
-map <leader>fh :<C-U>setf haskell<CR>
-map <leader>fj :<C-U>setf java<CR>
-map <leader>fl :<C-U>setf lua<CR>
-map <leader>fL :<C-U>setf lisp<CR>
-map <leader>fm :<C-U>setf markdown<CR>
-map <leader>fM :<C-U>setf m4<CR>
-map <leader>fP :<C-U>setf perl<CR>
-map <leader>fp :<C-U>setf python<CR>
-map <leader>fT :<C-U>setf tex<CR>
-map <leader>fr :<C-U>setf rust<CR>
-map <leader>fR :<C-U>setf rest<CR>
-map <leader>fs :<C-U>setf scheme<CR>
-map <leader>fT :<C-U>setf tcl<CR>
-map <leader>ft :<C-U>setf text<CR>
-map <leader>fv :<C-U>setf vim<CR>
-
-" filter {{{3
-
-map <leader>as :!astyle -oO -snwpYHU --style=kr --mode=c<CR>
-
-" run current line {{{3
-nmap <leader>rc :exec getline('.')[col('.')-1:]<CR>
-xmap <leader>rc y:exec @"<CR>
-nmap <leader>rv :echo eval(getline('.'))[col('.')-1:]<CR>
-xmap <leader>rv y:echo eval(@")<CR>
-
-" get syntax stack {{{3
-" nmap<silent> <leader>gs :echo ""<bar>for id in synstack(line('.'),col('.'))
-"             \\|echo synIDattr(id, "name")
-"             \\|endfor<CR>
-
-" vimrc edit {{{3
-if has("win32")
-    map <leader>re :drop $VIM/vimfiles/_vimrc<CR>
-    map <leader>rr :so $VIM/vimfiles/_vimrc<CR>
-else
-    map <leader>re :drop $MYVIMRC<CR>
-    map <leader>rr :so $MYVIMRC<CR>
-endif
 
 " clipboard operations {{{3
 if has('eval')
@@ -783,7 +671,7 @@ if has('eval')
     " get Global
     nor gG :norm! ggVG<CR>
     sunm gG
-    " Build buffer with zip
+    " Build buffer with zp
     nmap zB gGzp
     " get text zipped
     nmap gz zyaa``
@@ -792,65 +680,23 @@ if has('eval')
     map Y y$
 endif
 
-" set buffer tabstop and sw and et
-
-map <leader>f1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
-map <leader>f2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
-
-" indent {{{3
-
-xmap > >gv
-xmap < <gv
-nmap g= gg=G
-xmap g= gg=G
-
-" quickfix error jumps {{{3
-
-map <leader>qj :<C-U>cn!<CR>
-map <leader>qk :<C-U>cp!<CR>
-
-" quick complete (against supertab) {{{3
-
-"inor <m-n> <c-n>
-"inor <m-p> <c-p>
-
 " visual # and * operators {{{3
 
 xnor<silent> # "sy?\V<C-R>=substitute(escape(@s, '\?'), '\n', '\\n', 'g')<CR><CR>
 xnor<silent> * "sy/\V<C-R>=substitute(escape(@s, '\/'), '\n', '\\n', 'g')<CR><CR>
 
-" redo {{{3
-
-map <m-r> <c-r>
-
-" diff get/put {{{3
-
-map <leader>dg :diffget
-map <leader>dp :diffput
-map <leader>du :diffupdate
-
-" window navigating {{{3
+" window navigating/sizing {{{3
 
 nmap <C-+> <C-W>+
 nmap <C-,> <C-W><
 nmap <C--> <C-W>-
 nmap <C-.> <C-W>>
 nmap <C-=> <C-W>=
-nmap <C-h> <C-W>h
-nmap <C-j> <C-W>j
-nmap <C-k> <C-W>k
-nmap <C-l> <C-W>l
 xmap <C-+> <C-W>+
 xmap <C-,> <C-W><
 xmap <C--> <C-W>-
 xmap <C-.> <C-W>>
 xmap <C-=> <C-W>=
-xmap <C-h> <C-W>h
-xmap <C-j> <C-W>j
-xmap <C-k> <C-W>k
-xmap <C-l> <C-W>l
-
-" window resizing {{{3
 
 if has('eval')
     nmap Z8 :call <SID>wresize()<CR>
@@ -875,15 +721,80 @@ map <M-k> <C-k>Z8
 map <M-h> <C-h>Z8
 map <M-l> <C-l>Z8
 
-" window moving {{{3
+" <leader># set buffer tabstop and sw and et
 
+map <leader>1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
+map <leader>2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
 
-map <M-S-J> <C-W>J
-map <M-S-K> <C-W>K
-map <M-S-H> <C-W>H
-map <M-S-L> <C-W>L
+" <leader>a filter {{{3
 
-" tab navigating {{{3
+map <leader>a :!astyle -oO -snwpYHU --style=kr --mode=c<CR>
+
+" <leader>b ctrlp buffer list {{{3
+
+map <leader>b <leader>ib
+
+" <leader>c cd to current file folder {{{3
+
+map <leader>cd :<C-U>cd %:h<CR>
+map <leader>cw :<C-U>cd Y:/trunk/server<CR>
+map <leader>c1 :<C-U>call feedkeys(":\<lt>C-U>cd Y:/1.\<lt>Tab>", 't')<CR>
+
+" <leader>d diff get/put {{{3
+
+map <leader>dd :<C-U>noh\|pcl\|ccl\|lcl<CR>
+map <leader>dg :diffget
+map <leader>dp :diffput
+map <leader>du :diffupdate
+
+" <leader>e explorer invoke {{{3
+
+nmap <leader>ef :<C-U>vsp %:h<CR>
+nmap <leader>ep :<C-U>vsp $VIMDOR<CR>
+nmap <leader>es :<C-U>vsp $PRJDIR<CR>
+nmap <leader>ev :<C-U>vsp $VIM<CR>
+nmap <leader>ex :vsp .<CR>
+xmap <leader>ex "ey:vsp <C-R>e<CR>
+
+" <leader>f filetype settings {{{3
+map <leader>f+ :<C-U>setf cpp<CR>
+map <leader>fc :<C-U>setf c<CR>
+map <leader>fC :<C-U>setf clojure<CR>
+map <leader>fd :<C-U>setf dot<CR>
+map <leader>fg :<C-U>setf go<CR>
+map <leader>fh :<C-U>setf haskell<CR>
+map <leader>fj :<C-U>setf java<CR>
+map <leader>fl :<C-U>setf lua<CR>
+map <leader>fL :<C-U>setf lisp<CR>
+map <leader>fm :<C-U>setf markdown<CR>
+map <leader>fM :<C-U>setf m4<CR>
+map <leader>fP :<C-U>setf perl<CR>
+map <leader>fp :<C-U>setf python<CR>
+map <leader>fT :<C-U>setf tex<CR>
+map <leader>fr :<C-U>setf rust<CR>
+map <leader>fR :<C-U>setf rest<CR>
+map <leader>fs :<C-U>setf scheme<CR>
+map <leader>fT :<C-U>setf tcl<CR>
+map <leader>ft :<C-U>setf text<CR>
+map <leader>fv :<C-U>setf vim<CR>
+
+" <leader>g get syntax stack {{{3
+nmap<silent> <leader>g :echo ""<bar>for id in synstack(line('.'),col('.'))
+            \\|echo synIDattr(id, "name")
+            \\|endfor<CR>
+
+" <leader>hjkl window navigating and moving {{{3
+
+nmap <leader>h <C-W>h
+nmap <leader>j <C-W>j
+nmap <leader>k <C-W>k
+nmap <leader>l <C-W>l
+nmap <leader>H <C-W>H
+nmap <leader>J <C-W>J
+nmap <leader>K <C-W>K
+nmap <leader>L <C-W>L
+
+" <leader>n tab navigating {{{3
 nnoremap <leader>1 :tabnext 1<CR>
 nnoremap <leader>2 :tabnext 2<CR>
 nnoremap <leader>3 :tabnext 3<CR>
@@ -894,32 +805,85 @@ nnoremap <leader>7 :tabnext 7<CR>
 nnoremap <leader>8 :tabnext 8<CR>
 nnoremap <leader>9 :tabnext 9<CR>
 
-" save {{{3
+" <leader>i ctrlp {{{3
 
-map <C-S> :<C-U>w<CR>
+nnoremap <leader>ii :<C-U>CtrlP<CR>
+nnoremap <leader>ib :<C-U>CtrlPBuffer<CR>
+nnoremap <leader>ic :<C-U>CtrlPCurFile<CR>
+nnoremap <leader>ie :call <SID>tagsUnderCursor()<CR>
+nnoremap <leader>is :<C-U>cd Y:/trunk/server<BAR>CtrlP<CR>
+nnoremap <leader>it :<C-U>CtrlPTag<CR>
+nnoremap <leader>iu :<C-U>CtrlPMRU<CR>
 
-" Function Key maps {{{3
+function! <SID>tagsUnderCursor()
+    try
+        let default_input_save = get(g:, 'ctrlp_default_input', '')
+        let g:ctrlp_default_input = expand('<cword>')
+        CtrlPBufTagAll
+    finally
+        if exists('default_input_save')
+            let g:ctrlp_default_input = default_input_save
+        endif
+    endtry
+endfunction
 
-" f1: show the wildmenu {{{4
-map <F1> :<C-U>emenu <C-Z>
-imap <F1> <ESC><F1>
+" <leader>q quickfix error jumps {{{3
 
-" in cmode, it means print time
-cnoremap <f1> <C-R>=escape(strftime("%Y-%m-%d %H:%M:%S"), '\ ')<CR>
+map <leader>qj :<C-U>cn!<CR>
+map <leader>qk :<C-U>cp!<CR>
 
-" f2: VimFilerExplorer {{{4
-map <F2> :VimFilerExplorer<CR>
-imap <F2> <ESC><F2>
+" <leader>r run current line {{{3
 
-" f3: shell {{{4
-map <F3> :VimShellTab<CR>
-imap <F3> <ESC><F3>
+" vimrc edit
+if has("win32")
+    map <leader>re :drop $VIM/vimfiles/_vimrc<CR>
+    map <leader>rr :so $VIM/vimfiles/_vimrc<CR>
+else
+    map <leader>re :drop $MYVIMRC<CR>
+    map <leader>rr :so $MYVIMRC<CR>
+endif
 
-" f4: clear hlsearch and qf/loc window {{{4
-map <F4> :<C-U>noh\|pcl\|ccl\|lcl<CR>
-imap <F4> <ESC><F4>a
+nmap <leader>rc :exec getline('.')[col('.')-1:]<CR>
+xmap <leader>rc y:exec @"<CR>
+nmap <leader>rv :echo eval(getline('.'))[col('.')-1:]<CR>
+xmap <leader>rv y:echo eval(@")<CR>
 
-" }}}4
+" <leader>t terminal {{{3
+
+if has('mac')
+    map <leader>t :<C-U>!open -a iterm<CR>:call feedkeys("\<lt>CR>")<CR>
+elseif !has('win32')
+    map <leader>t :<C-U>!gnome-terminal &<CR>:call feedkeys("\<lt>CR>")<CR>
+elseif executable('sh.exe')
+    map <leader>t :<C-U>!start sh.exe --login -i<CR>
+else
+    map <leader>t :<C-U>!start cmd.exe<CR>
+endif
+
+" <leader>v vim invoke {{{3
+
+if has('eval')
+    function! s:get_restart_arg()
+        if has('win32')
+            let cmdline = '!start '.v:progname.' -c "cd '
+        else
+            let cmdline = '!'.v:progname.' -c "cd '
+            call feedkeys("\<CR>")
+        end
+        if exists(":NERDTreeToggle") == 2
+            return cmdline.fnameescape(getcwd()).'|NERDTreeToggle|wincmd l"'
+        else
+            return cmdline.fnameescape(getcwd()).'"'
+        endif
+    endfunction
+    map <leader>vn :<C-U>exec <SID>get_restart_arg()<CR>
+    map <leader>vr :<C-U>exec <SID>get_restart_arg()<BAR>qa!<CR>
+    if has('win32')
+        map <leader>vi :<C-U>!start gvim<CR>
+    else
+        map <leader>vi :<C-U>!gvim<CR><CR>
+    end
+end
 
 " }}}3
 
@@ -928,64 +892,59 @@ imap <F4> <ESC><F4>a
 " plugin settings {{{1
 if has('eval')
 
-
-" Vundle {{{2
+" vim-plug {{{2
 
 filetype off
 
-let s:bundlePath=s:vimrcpath.'/bundle'
-let &rtp.=','.s:bundlePath.'/Vundle.vim'
-call vundle#begin(s:bundlePath)
-unlet s:bundlePath
+call plug#begin(s:vimrcpath.'/bundle')
 
-if exists(':Plugin')
 
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'easymotion/vim-easymotion'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-surround'
-Plugin 'bling/vim-airline'
-Plugin 'Shougo/neomru.vim'
-Plugin 'Shougo/unite.vim'
-Plugin 'Shougo/unite-outline'
-Plugin 'Shougo/neossh.vim'
-Plugin 'Shougo/vimproc.vim'
-Plugin 'Shougo/vimshell.vim'
-Plugin 'Shougo/vimfiler.vim'
-Plugin 'Shougo/vinarise.vim'
-Plugin 'yianwillis/vimcdoc'
-Plugin 'godlygeek/tabular'
-Plugin 'Raimondi/delimitMate'
-"Plugin 'jiangmiao/auto-pairs'
-Plugin 'mbbill/echofunc'
-Plugin 'nathanaelkane/vim-indent-guides'
-Plugin 'qingxbl/Mark--Karkat'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'scrooloose/syntastic'
-Plugin 'dyng/ctrlsf.vim'
-Plugin 'terryma/vim-multiple-cursors'
+if exists(':Plug')
+
+Plug 'yianwillis/vimcdoc'
+
+Plug 'vim-airline/vim-airline'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'dyng/ctrlsf.vim'
+Plug 'junegunn/vim-easy-align'
+Plug 'easymotion/vim-easymotion'
+Plug 'Konfekt/FoldText'
+Plug 'Raimondi/delimitMate'
+Plug 'godlygeek/tabular'
+Plug 'mbbill/echofunc'
+Plug 'mkitt/tabline.vim'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/syntastic'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-fugitive'
+Plug 'triglav/vim-visual-increment'
+
+Plug 'qingxbl/Mark--Karkat'
 
 " Language-spec
-Plugin 'Shutnik/jshint2.vim'
-Plugin 'OrangeT/vim-csharp'
-Plugin 'wting/rust.vim'
-Plugin 'zah/nim.vim'
-Plugin 'tikhomirov/vim-glsl'
-Plugin 'elzr/vim-json'
-Plugin 'thinca/vim-logcat'
-Plugin 'leafo/moonscript-vim'
-Plugin 'raymond-w-ko/vim-lua-indent'
-Plugin 'vim-erlang/vim-erlang-runtime'
+Plug 'Shutnik/jshint2.vim'
+Plug 'OrangeT/vim-csharp'
+Plug 'wting/rust.vim'
+Plug 'zah/nim.vim'
+Plug 'tikhomirov/vim-glsl'
+Plug 'elzr/vim-json'
+Plug 'thinca/vim-logcat'
+Plug 'leafo/moonscript-vim'
+Plug 'raymond-w-ko/vim-lua-indent'
+Plug 'vim-erlang/vim-erlang-runtime'
+Plug 'chrisbra/csv.vim'
 
 if glob(s:vimrcpath.'/_enableYouCompleteMe') != ''
-    Plugin 'Valloric/YouCompleteMe'
+    Plug 'Valloric/YouCompleteMe'
 endif
 
-"Plugin 'xolox/vim-misc'  " required by lua.vim
-"Plugin 'xolox/vim-lua-ftplugin'  " Lua file type plug-in for the Vim text editor
 
-call vundle#end()
-call s:rtp_fix()
+call plug#end()
 endif
 filetype plugin indent on
 
@@ -993,12 +952,6 @@ filetype plugin indent on
 let base16colorspace=256
 set background=dark
 silent! colorscheme base16-eighties
-
-" Easy Vim {{{2
-
-if &insertmode
-    run! evim.vim
-endif
 
 " 2html {{{2
 
@@ -1009,7 +962,10 @@ let html_use_css = 1
 
 " airline {{{2
 
-let g:airline_symbols_ascii=1
+if has("gui_running")
+    let g:airline_powerline_fonts = 1
+endif
+"let g:airline_symbols_ascii=1
 
 let g:airline_mode_map = {
             \ '__' : '-',
@@ -1037,10 +993,41 @@ tmenu ToolBar.BuiltIn15 CTK Run
 amenu 1.248 ToolBar.-sep5-1- <Nop>
 
 
-if executable('ag')
+" ctrlp {{{2
+"
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.png,*.jpg,*.jpeg,*.gif " MacOSX/Linux
+let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/].(git|hg|svn|rvm)$',
+    \ 'file': '\v.(exe|so|dll|zip|tar|tar.gz|pyc|beam)$',
+    \ }
+
+if executable('rg')
+    set grepprg=rg\ --vimgrep
+    let g:ctrlp_user_command = 'rg %s -g "!*.beam" -g "!*.html" -g "!*.prof_output" --files'
+
+elseif executable('ag')
     " Use Ag over Grep
     set grepprg=ag\ --nogroup\ --nocolor
+    " Use ag in CtrlP for listing files.
+    " let g:ctrlp_user_command = 'ag %s -l --nocolor -g "\\.[he]rl"'
+    " Ag is fast enough that CtrlP doesn't need to cache
+    " let g:ctrlp_use_caching = 0
 endif
+
+" bind K to grep word under cursor
+nnoremap K :<C-U>silent! :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+
+nmap <F1> :<C-U>CtrlPBuffer<CR>
+nmap <F2> :<C-U>CtrlPMRU<CR>
+nmap <F3> :<C-U>CtrlPTag<CR>
+nmap <F4> :<C-U>CtrlP<CR>
+
+imap <F1> <C-\><C-N><F1>
+imap <F2> <C-\><C-N><F2>
+imap <F3> <C-\><C-N><F3>
+imap <F4> <C-\><C-N><F4>
 
 " delimitMate {{{2
 
@@ -1049,36 +1036,73 @@ let g:delimitMate_expand_cr    = 2
 let g:delimitMate_jump_expansion = 0
 
 
-" EasyGrep {{{2
+" EasyAlign {{{2
 
-let g:EasyGrepMode=2 " TrackExt
-let g:EasyGrepCommand = 1
+" Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
+vmap <Enter> <Plug>(EasyAlign)
 
+" Start interactive EasyAlign for a motion/text object (e.g. ,=ip)
+nmap <leader>a <Plug>(EasyAlign)
+
+" EasyVim {{{2
+
+if &insertmode
+    run! evim.vim
+endif
+
+" FoldText {{{2
+
+set foldmethod=syntax
+
+" { Syntax Folding
+  let g:vimsyn_folding='af'
+  let g:tex_fold_enabled=1
+  let g:xml_syntax_folding = 1
+  let g:clojure_fold = 1
+  let ruby_fold = 1
+  let perl_fold = 1
+  let perl_fold_blocks = 1
+" }
+
+set foldenable
+set foldlevel=0
+set foldlevelstart=0
+" specifies for which commands a fold will be opened
+set foldopen=block,hor,insert,jump,mark,percent,quickfix,search,tag,undo
+
+nnoremap <silent> za za:<c-u>setlocal foldlevel?<CR>
+
+nnoremap <silent> zr zr:<c-u>setlocal foldlevel?<CR>
+nnoremap <silent> zm zm:<c-u>setlocal foldlevel?<CR>
+
+nnoremap <silent> zR zR:<c-u>setlocal foldlevel?<CR>
+nnoremap <silent> zM zM:<c-u>setlocal foldlevel?<CR>
+
+" Change Option Folds
+nnoremap zi  :<c-u>call <SID>ToggleFoldcolumn(1)<CR>
+nnoremap coz :<c-u>call <SID>ToggleFoldcolumn(0)<CR>
+nmap     cof coz
+
+function! s:ToggleFoldcolumn(fold)
+  if &foldcolumn
+    let w:foldcolumn = &foldcolumn
+    silent setlocal foldcolumn=0
+    if a:fold | silent setlocal nofoldenable | endif
+  else
+      if exists('w:foldcolumn') && (w:foldcolumn!=0)
+        silent let &l:foldcolumn=w:foldcolumn
+      else
+        silent setlocal foldcolumn=4
+      endif
+      if a:fold | silent setlocal foldenable | endif
+  endif
+  setlocal foldcolumn?
+endfunction
 
 " indent guide {{{2
 
 let g:indent_guides_guide_size=1
 
-
-" mru {{{2
-
-let g:neomru#file_mru_path = s:tprefix.'/neomru/file'
-let g:neomru#directory_mru_path = s:tprefix.'/neomru/directory'
-let g:unite_data_directory = s:tprefix.'/unite'
-
-map <leader>u :Unite file_mru<CR>
-map <leader>uu :Unite file_mru<CR>
-map <leader>uf :Unite outline<CR>
-map <leader>ub :Unite buffer<CR>
-
-" multiple-cursors  {{{2
-
-let g:multi_cursor_exit_from_insert_mode = 0
-let g:multi_cursor_exit_from_visual_mode = 0
-
-" perl {{{2
-
-let g:perl_fold = 1
 
 " Lua {{{2
 
@@ -1101,6 +1125,37 @@ endif
 let lua_complete_omni = 0
 
 
+
+" multiple-cursors  {{{2
+
+let g:multi_cursor_exit_from_insert_mode = 0
+let g:multi_cursor_exit_from_visual_mode = 0
+
+if has("mac")
+    function! Multiple_cursors_before()
+        let g:smartim_disable = 1
+    endfunction
+    function! Multiple_cursors_after()
+        unlet g:smartim_disable
+    endfunction
+end
+
+
+" NERDTree {{{2
+
+nmap <leader>nn :NERDTreeToggle<CR>
+xmap <leader>nn :<C-U>NERDTreeToggle<CR>
+map <leader>nf :<C-U>NERDTree %:h<CR>
+map <leader>np :<C-U>NERDTree $VIMDOR<CR>
+map <leader>ns :<C-U>NERDTree $PRJDIR<CR>
+map <leader>nv :<C-U>NERDTree $VIM<CR>
+nmap <leader>nx :NERDTree .<CR>
+xmap <leader>nx "ey:NERDTree <C-R>e<CR>
+
+
+" perl {{{2
+
+let g:perl_fold = 1
 
 " surround {{{2
 
@@ -1130,23 +1185,9 @@ let g:loaded_zipPlugin= 1
 let g:loaded_zip      = 1
 
 " }}}2
-" VimShell {{{2
-let g:vimshell_data_directory = s:tprefix.'/vimshell'
-let g:vimshell_enable_smart_case = 1
-let g:vimshell_prompt = '> '
 
-" }}}2
 " YouCompleteMe {{{2
 nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
-
-" VimFiler {{{2
-
-" Disable netrw.vim
-let g:loaded_netrwPlugin = 1
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_data_directory = s:tprefix.'/vimfiler'
-
-" }}}
 
 endif
 
