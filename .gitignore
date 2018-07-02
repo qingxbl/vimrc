@@ -9,3 +9,4 @@ _enableYouCompleteMe
 *.tar.gz
 *.tar.bz2
 *~
+*.old

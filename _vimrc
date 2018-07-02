@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2192)
-" Last Change:  2018-01-19 10:42:32
+" Version:      0.5 (2264)
+" Last Change:  2018-07-02 17:35:19
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -24,7 +24,11 @@ endif
 
 if has('eval')
     let s:cpo_save = &cpo
+    if !exists('g:gui_running')
+        let g:gui_running = has('gui_running')
+    endif
 endif
+
 set cpo&vim " set cpo-=C cpo-=b
 
 " generic Settings {{{2
@@ -89,17 +93,18 @@ if has('eval')
     endfunction
 endif
 
-if has('gui_running') " {{{2
+if g:gui_running " {{{2
     set co=120 lines=35
 
-    if has('win32')
-        silent! set gfn=Consolas:h9:qDRAFT
-        "exec 'set gfw='.iconv('新宋体', 'utf8', 'gbk').':h10:cGB2312'
-    elseif has('mac')
-        set gfn=Monaco\ for\ Powerline:h14
-    else
-        "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
-        set gfn=DejaVu\ Sans\ Mono\ 9
+    if exists('+gfn')
+        if has('win32')
+            silent! set gfn=Consolas:h9:qDRAFT
+        elseif has('mac')
+            set gfn=Monaco\ for\ Powerline:h14
+        else
+            "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
+            set gfn=DejaVu\ Sans\ Mono\ 9
+        endif
     endif
 
 endif " }}}2
@@ -119,7 +124,7 @@ if has("win32") " {{{2
     endif
 
 elseif has('unix') " {{{2
-    if has('gui_running')
+    if g:gui_running
         lang mes zh_CN.UTF-8
         set langmenu=zh_CN.UTF-8
         silent! so $VIMRUNTIME/delmenu.vim
@@ -132,7 +137,7 @@ elseif has('unix') " {{{2
         if exists('$TMUX')
             let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
             let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-        elseif has('gui_running')
+        elseif g:gui_running
             let &t_SI = "\<Esc>]50;CursorShape=1\x7"
             let &t_EI = "\<Esc>]50;CursorShape=0\x7"
         endif
@@ -154,7 +159,7 @@ elseif has('unix') " {{{2
         return ""
     endfunction
 
-    if !has('gui_running')
+    if !g:gui_running
         let &t_SI .= WrapForTmux("\<Esc>[?2004h")
         let &t_EI .= WrapForTmux("\<Esc>[?2004l")
         inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
@@ -503,7 +508,7 @@ endif
 
 " Full GUI {{{3
 
-if has('gui_running')
+if g:gui_running
     set go-=e
     let s:has_mt = glob("$VIM/_fullscreen") == "" &&
                 \  glob("$VIM/vimfiles/_fullscreen") == "" &&
@@ -794,17 +799,6 @@ nmap <leader>J <C-W>J
 nmap <leader>K <C-W>K
 nmap <leader>L <C-W>L
 
-" <leader>n tab navigating {{{3
-nnoremap <leader>1 :tabnext 1<CR>
-nnoremap <leader>2 :tabnext 2<CR>
-nnoremap <leader>3 :tabnext 3<CR>
-nnoremap <leader>4 :tabnext 4<CR>
-nnoremap <leader>5 :tabnext 5<CR>
-nnoremap <leader>6 :tabnext 6<CR>
-nnoremap <leader>7 :tabnext 7<CR>
-nnoremap <leader>8 :tabnext 8<CR>
-nnoremap <leader>9 :tabnext 9<CR>
-
 " <leader>i ctrlp {{{3
 
 nnoremap <leader>ii :<C-U>CtrlP<CR>
@@ -850,7 +844,9 @@ xmap <leader>rv y:echo eval(@")<CR>
 
 " <leader>t terminal {{{3
 
-if has('mac')
+if v:version >= 801
+    map <leader>t :<C-U>terminal<CR>
+elseif has('mac')
     map <leader>t :<C-U>!open -a iterm<CR>:call feedkeys("\<lt>CR>")<CR>
 elseif !has('win32')
     map <leader>t :<C-U>!gnome-terminal &<CR>:call feedkeys("\<lt>CR>")<CR>
@@ -901,43 +897,56 @@ call plug#begin(s:vimrcpath.'/bundle')
 
 if exists(':Plug')
 
-Plug 'yianwillis/vimcdoc'
+Plug 'yianwillis/vimcdoc'       " chinese document
+Plug 'w0rp/ale'            " live lint
+"Plug 'mhinz/vim-signify'   " show difference
+"Plug 'metakirby5/codi.vim' " on-the-fly coding
 
-Plug 'vim-airline/vim-airline'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'dyng/ctrlsf.vim'
+" textobj
 Plug 'junegunn/vim-easy-align'
-Plug 'easymotion/vim-easymotion'
+Plug 'kana/vim-textobj-function', { 'for':['c', 'cpp', 'vim', 'java'] }
+Plug 'kana/vim-textobj-indent'
+Plug 'kana/vim-textobj-syntax'
+Plug 'kana/vim-textobj-user'
+Plug 'sgur/vim-textobj-parameter'
+Plug 'tpope/vim-surround'
+
+
 Plug 'Konfekt/FoldText'
 Plug 'Raimondi/delimitMate'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'dyng/ctrlsf.vim'
+Plug 'easymotion/vim-easymotion'
+Plug 'ervandew/supertab'
+Plug 'fidian/hexmode'
 Plug 'godlygeek/tabular'
 Plug 'mbbill/echofunc'
-Plug 'mkitt/tabline.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree'
-Plug 'scrooloose/syntastic'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-fugitive'
 Plug 'triglav/vim-visual-increment'
+Plug 'vim-airline/vim-airline'
+Plug 'Chiel92/vim-autoformat'
 
 Plug 'qingxbl/Mark--Karkat'
 
 " Language-spec
-Plug 'Shutnik/jshint2.vim'
-Plug 'OrangeT/vim-csharp'
-Plug 'wting/rust.vim'
-Plug 'zah/nim.vim'
-Plug 'tikhomirov/vim-glsl'
-Plug 'elzr/vim-json'
-Plug 'thinca/vim-logcat'
-Plug 'leafo/moonscript-vim'
-Plug 'raymond-w-ko/vim-lua-indent'
-Plug 'vim-erlang/vim-erlang-runtime'
-Plug 'chrisbra/csv.vim'
+Plug 'OrangeT/vim-csharp', { 'for': 'csharp' }
+Plug 'Shutnik/jshint2.vim', { 'for': 'javascript' }
+Plug 'chrisbra/csv.vim', { 'for': 'csv' }
+Plug 'elzr/vim-json', { 'for': 'json' }
+Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'leafo/moonscript-vim', { 'for': 'moonscript' }
+Plug 'raymond-w-ko/vim-lua-indent', { 'for': 'lua' }
+Plug 'tikhomirov/vim-glsl', { 'for': 'glsl' }
+Plug 'vim-erlang/vim-erlang-runtime', { 'for': 'erlang' }
+Plug 'wting/rust.vim', { 'for': 'rust' }
+Plug 'zah/nim.vim', { 'for': 'nim' }
+"Plug 'thinca/vim-logcat'
 
 if glob(s:vimrcpath.'/_enableYouCompleteMe') != ''
     Plug 'Valloric/YouCompleteMe'
@@ -962,10 +971,26 @@ let html_use_css = 1
 
 " airline {{{2
 
-if has("gui_running")
+if g:gui_running
     let g:airline_powerline_fonts = 1
 endif
 "let g:airline_symbols_ascii=1
+
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_tab_type = 0
+let g:airline#extensions#tabline#tab_nr_type = 1
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
+nmap <leader>- <Plug>AirlineSelectPrevTab
+nmap <leader>+ <Plug>AirlineSelectNextTab
 
 let g:airline_mode_map = {
             \ '__' : '-',
@@ -979,10 +1004,28 @@ let g:airline_mode_map = {
             \ 's'  : 'S',
             \ 'S'  : 'SL',
             \ '' : 'SB',
+            \ 't'  : 'T',
             \ }
 
 let g:airline_powerline_fonts = 1
 let g:airline_theme = 'base16_eighties'
+
+" ale {{{2
+
+"let g:ale_linters_explicit = 1
+let g:ale_completion_delay = 500
+let g:ale_echo_delay = 20
+let g:ale_lint_delay = 500
+let g:ale_echo_msg_format = '[%linter%] %code: %%s'
+let g:ale_lint_on_save = 1
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
+let g:airline#extensions#ale#enabled = 1
+ 
+let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
+let g:ale_c_cppcheck_options = ''
+let g:ale_cpp_cppcheck_options = ''
 
 " ctk {{{2
 
@@ -1016,9 +1059,6 @@ elseif executable('ag')
     " let g:ctrlp_use_caching = 0
 endif
 
-" bind K to grep word under cursor
-nnoremap K :<C-U>silent! :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
-
 nmap <F1> :<C-U>CtrlPBuffer<CR>
 nmap <F2> :<C-U>CtrlPMRU<CR>
 nmap <F3> :<C-U>CtrlPTag<CR>
@@ -1028,6 +1068,11 @@ imap <F1> <C-\><C-N><F1>
 imap <F2> <C-\><C-N><F2>
 imap <F3> <C-\><C-N><F3>
 imap <F4> <C-\><C-N><F4>
+
+" CtrlSF {{{2
+
+" bind K to grep word under cursor
+nnoremap K :<C-U>silent! :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 
 " delimitMate {{{2
 
@@ -1102,6 +1147,35 @@ endfunction
 " indent guide {{{2
 
 let g:indent_guides_guide_size=1
+
+
+" LeaderF {{{2
+
+let g:Lf_ShortcutF = '<c-p>'
+let g:Lf_ShortcutB = '<m-n>'
+"noremap <c-n> :LeaderfMru<cr>
+"noremap <m-p> :LeaderfFunction<cr>
+"noremap <m-n> :LeaderfBuffer<cr>
+"noremap <m-m> :LeaderfTag<cr>
+let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
+ 
+let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
+let g:Lf_WorkingDirectoryMode = 'Ac'
+let g:Lf_WindowHeight = 0.30
+let g:Lf_ShowRelativePath = 0
+let g:Lf_HideHelp = 1
+let g:Lf_StlColorscheme = 'powerline'
+ 
+let g:Lf_NormalMap = {
+    \ "File":   [["<ESC>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
+    \            ["<F6>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
+    \ "Buffer": [["<ESC>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
+    \            ["<F6>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
+    \ "Mru":    [["<ESC>", ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
+    \ "Tag":    [["<ESC>", ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
+    \ "Function":    [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
+    \ "Colorscheme":    [["<ESC>", ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
+    \ }
 
 
 " Lua {{{2
