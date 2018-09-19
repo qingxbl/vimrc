@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2264)
-" Last Change:  2018-07-02 17:35:19
+" Version:      0.5 (2301)
+" Last Change:  2018-09-06 17:18:05
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -393,7 +393,7 @@ if has('autocmd')
         au FileType lua se sw=3 sts=3 ts=3 et
         au FileType lua let b:syntastic_checkers=['luacheck', 'lua']
         au FileType nim se sw=2 sts=2 ts=2 nu et fdm=marker fdc=2
-        au FileType erlang se sw=2 sts=2 fdm=marker fdc=2
+        au FileType erlang se sw=2 sts=2 fdm=marker fdc=2 ff=unix
         au FileType javascript se sw=2 sts=2 ts=2 et fdc=2 fdm=syntax
         au FileType cs se ai nu noet sw=4 sts=4 ts=4 fdc=2 fdm=syntax
         au FileType javascript if exists("*JavaScriptFold")
@@ -406,6 +406,17 @@ if has('autocmd')
         au BufReadPost log.txt syn clear
                     \|         syn region Table start='{' end='}' contains=Table fold
                     \|         se fdc=5 fdm=syntax autoread
+
+        func! s:reg_tgame(path)
+            for fn in glob(a:path.'/*', 0, 1)
+                exec "au BufNewFile,BufRead "
+                            \ substitute(fn.'\server\**\*.[he]rl', '\\', '/', 'g')
+                            \ "let b:neomake_erlang_erlc_root='".fn."\\server\\'" "|"
+                            \ "let b:neomake_erlang_erlc_flags=['-I', '".fn."\\server']"
+            endfor
+        endfunc
+        call s:reg_tgame("C:/Devel/Projects/tgame/versions")
+        call s:reg_tgame("Y:/Work")
 
         if has("cscope")
             au VimLeave * cs kill -1
@@ -897,10 +908,16 @@ call plug#begin(s:vimrcpath.'/bundle')
 
 if exists(':Plug')
 
+" Plug 'flazz/vim-colorschemes'
+" Plug 'scrooloose/syntastic'
+
 Plug 'yianwillis/vimcdoc'       " chinese document
-Plug 'w0rp/ale'            " live lint
+"Plug 'w0rp/ale'            " live lint
 "Plug 'mhinz/vim-signify'   " show difference
+Plug 'starwing/neomake'     " live lint/build
 "Plug 'metakirby5/codi.vim' " on-the-fly coding
+Plug 'Shougo/deol.nvim'
+"Plug 'luochen1990/rainbow'
 
 " textobj
 Plug 'junegunn/vim-easy-align'
@@ -946,6 +963,7 @@ Plug 'tikhomirov/vim-glsl', { 'for': 'glsl' }
 Plug 'vim-erlang/vim-erlang-runtime', { 'for': 'erlang' }
 Plug 'wting/rust.vim', { 'for': 'rust' }
 Plug 'zah/nim.vim', { 'for': 'nim' }
+Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
 "Plug 'thinca/vim-logcat'
 
 if glob(s:vimrcpath.'/_enableYouCompleteMe') != ''
@@ -1089,6 +1107,32 @@ vmap <Enter> <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. ,=ip)
 nmap <leader>a <Plug>(EasyAlign)
 
+let g:easy_align_delimiters = {
+            \ 's': { 'pattern': '::' },
+            \ '>': { 'pattern': '>>\|=>\|->\|>' },
+            \ '/': {
+            \     'pattern':         '//\+\|/\*\|\*/',
+            \     'delimiter_align': 'l',
+            \     'ignore_groups':   ['!Comment'] },
+            \ ']': {
+            \     'pattern':       '[[\]]',
+            \     'left_margin':   0,
+            \     'right_margin':  0,
+            \     'stick_to_left': 0
+            \   },
+            \ ')': {
+            \     'pattern':       '[()]',
+            \     'left_margin':   0,
+            \     'right_margin':  0,
+            \     'stick_to_left': 0
+            \   },
+            \ 'd': {
+            \     'pattern':      ' \(\S\+\s*[;=]\)\@=',
+            \     'left_margin':  0,
+            \     'right_margin': 0
+            \   }
+            \ }
+
 " EasyVim {{{2
 
 if &insertmode
@@ -1215,6 +1259,12 @@ if has("mac")
 end
 
 
+" neomake {{{2
+
+" When reading a buffer (after 1s), and when writing (no delay).
+silent!  call neomake#configure#automake('rw', 1000)
+
+
 " NERDTree {{{2
 
 nmap <leader>nn :NERDTreeToggle<CR>
@@ -1230,6 +1280,18 @@ xmap <leader>nx "ey:NERDTree <C-R>e<CR>
 " perl {{{2
 
 let g:perl_fold = 1
+
+" rainbow
+
+let g:rainbow_active = 1
+
+" supertab {{{2
+
+let g:SuperTabDefaultCompletionType = "<C-N>"
+let g:SuperTabNoCompleteAfter = [ '^', ',', '\s' ]
+"let g:SuperTabCrMapping = 0 " incompatible with autopairs/delimitMate
+"let g:SuperTabLongestEnhanced = 1
+"let g:SuperTabLongestHighlight = 1
 
 " surround {{{2
 
