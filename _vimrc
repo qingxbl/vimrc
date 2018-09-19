@@ -55,6 +55,7 @@ set virtualedit=block
 set whichwrap+=<,>,h,l
 set wildcharm=<C-Z>
 set wildmenu
+set shortmess=I
 
 " new in Vim 7.3 {{{2
 
@@ -406,17 +407,6 @@ if has('autocmd')
         au BufReadPost log.txt syn clear
                     \|         syn region Table start='{' end='}' contains=Table fold
                     \|         se fdc=5 fdm=syntax autoread
-
-        func! s:reg_tgame(path)
-            for fn in glob(a:path.'/*', 0, 1)
-                exec "au BufNewFile,BufRead "
-                            \ substitute(fn.'\server\**\*.[he]rl', '\\', '/', 'g')
-                            \ "let b:neomake_erlang_erlc_root='".fn."\\server\\'" "|"
-                            \ "let b:neomake_erlang_erlc_flags=['-I', '".fn."\\server']"
-            endfor
-        endfunc
-        call s:reg_tgame("C:/Devel/Projects/tgame/versions")
-        call s:reg_tgame("Y:/Work")
 
         if has("cscope")
             au VimLeave * cs kill -1
@@ -916,7 +906,9 @@ Plug 'yianwillis/vimcdoc'       " chinese document
 "Plug 'mhinz/vim-signify'   " show difference
 Plug 'starwing/neomake'     " live lint/build
 "Plug 'metakirby5/codi.vim' " on-the-fly coding
-Plug 'Shougo/deol.nvim'
+if has("terminal")
+  Plug 'Shougo/deol.nvim'
+endif
 "Plug 'luochen1990/rainbow'
 
 " textobj
@@ -1280,18 +1272,6 @@ xmap <leader>nx "ey:NERDTree <C-R>e<CR>
 " perl {{{2
 
 let g:perl_fold = 1
-
-" rainbow
-
-let g:rainbow_active = 1
-
-" supertab {{{2
-
-let g:SuperTabDefaultCompletionType = "<C-N>"
-let g:SuperTabNoCompleteAfter = [ '^', ',', '\s' ]
-"let g:SuperTabCrMapping = 0 " incompatible with autopairs/delimitMate
-"let g:SuperTabLongestEnhanced = 1
-"let g:SuperTabLongestHighlight = 1
 
 " surround {{{2
 
