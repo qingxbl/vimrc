@@ -941,7 +941,7 @@ Plug 'zah/nim.vim', { 'for': 'nim' }
 Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
 "Plug 'thinca/vim-logcat'
 
-if glob(s:vimrcpath.'/_enableYouCompleteMe') != ''
+if glob(s:tprefix.'/_enableYouCompleteMe') != ''
     Plug 'Valloric/YouCompleteMe'
 endif
 
