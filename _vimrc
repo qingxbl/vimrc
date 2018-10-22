@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2301)
-" Last Change:  2018-09-06 17:18:05
+" Version:      0.5 (2334)
+" Last Change:  2018-10-19 23:42:54
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -94,21 +94,6 @@ if has('eval')
     endfunction
 endif
 
-if g:gui_running " {{{2
-    set co=120 lines=35
-
-    if exists('+gfn')
-        if has('win32')
-            silent! set gfn=Consolas:h9:qDRAFT
-        elseif has('mac')
-            set gfn=Monaco\ for\ Powerline:h14
-        else
-            "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
-            set gfn=DejaVu\ Sans\ Mono\ 9
-        endif
-    endif
-
-endif " }}}2
 if has("win32") " {{{2
     if $LANG =~? 'zh_CN' && &encoding !=? "cp936"
         set termencoding=cp936
@@ -131,40 +116,36 @@ elseif has('unix') " {{{2
         silent! so $VIMRUNTIME/delmenu.vim
         silent! so $VIMRUNTIME/menu.vim
     endif
+    if has("termguicolors")
+        " fix bug for vim
+        let &t_8f="\<ESC>[38;2;%lu;%lu;%lum"
+        let &t_8b="\<ESC>[48;2;%lu;%lu;%lum"
+
+        " enable true color
+        set termguicolors
+    endif
     if exists('$TMUX')
-        set term=screen-256color
+        let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
+        let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+    else
+        let &t_SI = "\e[5 q"
+        let &t_EI = "\e[2 q"
     endif
-    if exists('$ITERM_PROFILE')
-        if exists('$TMUX')
-            let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-            let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-        elseif g:gui_running
-            let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-            let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif " }}}2
+if g:gui_running " {{{2
+    set co=120 lines=35
+
+    if exists('+gfn')
+        if has('win32')
+            silent! set gfn=Consolas:h9:qDRAFT
+        elseif has('mac')
+            set gfn=Monaco\ for\ Powerline:h14
+        else
+            "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
+            set gfn=DejaVu\ Sans\ Mono\ 9
         endif
-    end
-    function! WrapForTmux(s)
-        if !exists('$TMUX')
-            return a:s
-        endif
-
-        let tmux_start = "\<Esc>Ptmux;"
-        let tmux_end = "\<Esc>\\"
-
-        return tmux_start.substitute(a:s, "\<Esc>", "\<Esc>\<Esc>", 'g').tmux_end
-    endfunction
-
-    function! XTermPasteBegin()
-        set pastetoggle=<Esc>[201~
-        set paste
-        return ""
-    endfunction
-
-    if !g:gui_running
-        let &t_SI .= WrapForTmux("\<Esc>[?2004h")
-        let &t_EI .= WrapForTmux("\<Esc>[?2004l")
-        inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
     endif
+
 endif " }}}2
 " swapfiles/undofiles settings {{{2
 
@@ -910,6 +891,8 @@ if has("terminal")
   Plug 'Shougo/deol.nvim'
 endif
 "Plug 'luochen1990/rainbow'
+Plug 'andymass/vim-matchup'
+Plug 'roman/golden-ratio'
 
 " textobj
 Plug 'junegunn/vim-easy-align'
@@ -981,15 +964,14 @@ let html_use_css = 1
 
 " airline {{{2
 
-if g:gui_running
-    let g:airline_powerline_fonts = 1
-endif
+let g:airline_powerline_fonts = 1
 "let g:airline_symbols_ascii=1
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#show_tab_type = 0
 let g:airline#extensions#tabline#tab_nr_type = 1
-let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
+let g:airline#extensions#tabline#buffer_nr_format = '%s: '
 nmap <leader>1 <Plug>AirlineSelectTab1
 nmap <leader>2 <Plug>AirlineSelectTab2
 nmap <leader>3 <Plug>AirlineSelectTab3
@@ -1000,7 +982,7 @@ nmap <leader>7 <Plug>AirlineSelectTab7
 nmap <leader>8 <Plug>AirlineSelectTab8
 nmap <leader>9 <Plug>AirlineSelectTab9
 nmap <leader>- <Plug>AirlineSelectPrevTab
-nmap <leader>+ <Plug>AirlineSelectNextTab
+nmap <leader>= <Plug>AirlineSelectNextTab
 
 let g:airline_mode_map = {
             \ '__' : '-',
@@ -1101,6 +1083,7 @@ nmap <leader>a <Plug>(EasyAlign)
 
 let g:easy_align_delimiters = {
             \ 's': { 'pattern': '::' },
+            \ '<': { 'pattern': '<<\|<=\|<-\|<' },
             \ '>': { 'pattern': '>>\|=>\|->\|>' },
             \ '/': {
             \     'pattern':         '//\+\|/\*\|\*/',
@@ -1256,6 +1239,20 @@ end
 " When reading a buffer (after 1s), and when writing (no delay).
 silent!  call neomake#configure#automake('rw', 1000)
 
+if has('win32') || !g:gui_running
+
+let g:neomake_error_sign = {'text': 'E>', 'texthl': 'NeomakeErrorSign'}
+let g:neomake_warning_sign = {
+            \   'text': 'W>',
+            \   'texthl': 'NeomakeWarningSign',
+            \ }
+let g:neomake_message_sign = {
+            \   'text': 'M>',
+            \   'texthl': 'NeomakeMessageSign',
+            \ }
+let g:neomake_info_sign = {'text': 'I>', 'texthl': 'NeomakeInfoSign'}
+
+endif
 
 " NERDTree {{{2
 
