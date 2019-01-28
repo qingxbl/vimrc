@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2368)
-" Last Change:  2019-01-10 01:00:32
+" Version:      0.5 (2537)
+" Last Change:  2019-02-09 00:30:11
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -56,6 +56,8 @@ set whichwrap+=<,>,h,l
 set wildcharm=<C-Z>
 set wildmenu
 set shortmess=I
+set mouse=a
+set smartcase
 
 " new in Vim 7.3 {{{2
 
@@ -127,9 +129,11 @@ elseif has('unix') " {{{2
     if exists('$TMUX')
         let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
         let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
-    else
-        let &t_SI = "\e[5 q"
-        let &t_EI = "\e[2 q"
+
+        execute "set <xUp>=\e[1;*A"
+        execute "set <xDown>=\e[1;*B"
+        execute "set <xRight>=\e[1;*C"
+        execute "set <xLeft>=\e[1;*D"
     endif
 endif " }}}2
 if g:gui_running " {{{2
@@ -150,7 +154,7 @@ endif " }}}2
 " swapfiles/undofiles settings {{{2
 
 let s:vimrcpath = fnamemodify(resolve(expand('<sfile>:p')), ':h')
-let s:tprefix = expand('~/.cache')
+let s:tprefix = expand('~/.cache/vim')
 
 function s:rtp_fix()
     set rtp-=~/.vim
@@ -182,7 +186,7 @@ if v:version >= 703 && isdirectory(s:tprefix.'/undofiles')
     let &undodir=s:tprefix."/undofiles"
 endif
 
-exec "set viminfo+=n".s:tprefix."/.viminfo"
+exec "set viminfo+=n".s:tprefix."/viminfo"
 
 "}}}2
 " ----------------------------------------------------------
@@ -193,7 +197,7 @@ if has('eval')
 
     " mapleader value {{{3
 
-    let mapleader = ","
+    let mapleader = " "
 
     function! s:globfirst(pattern) " {{{3
         return simplify(split(glob(a:pattern), '\n', 1)[0])
@@ -325,7 +329,7 @@ if has('eval')
 
     if exists('$PRJDIR') && argc() == 0
         let orig_dir = getcwd()
-        map<silent> <leader>od :<C-U>exec "cd" fnameescape(g:orig_dir)<BAR>NERDTreeToggle<CR>
+        map<silent> <leader>co :<C-U>exec "cd" fnameescape(g:orig_dir)<BAR>NERDTreeToggle<CR>
         silent! cd $PRJDIR
     endif " }}}3
 
@@ -539,47 +543,6 @@ if g:gui_running
 endif
 
 
-" DarkRoom {{{3
-
-if has('win32') && executable('vimtweak.dll')
-    let s:tweak_SetAlpha = 255
-    let s:tweak_Caption = 1
-    let s:tweak_Maximize = 0
-    let s:tweak_TopMost = 0
-    let s:tweak_initialize = 0
-
-    function! s:tweak(method, argv)
-        if !s:tweak_initialize
-            " a bug in Vista
-            if system('ver') =~ ' 6.'
-                silent! libcallnr('vimtweak.dll', 'EnableTopMost', 0)
-            endif
-
-            let s:tweak_initialize = 1
-        endif
-
-        let s:tweak_{a:method} = a:argv
-        return libcallnr('vimtweak.dll', (a:method == 'SetAlpha' ? '' : 'Enable').
-                    \ a:method, a:argv)
-    endfunction
-
-    command! -bar -nargs=1 -count=0 VimTweak call s:tweak(<q-args>, <count>)
-    command! -bang -bar Darkroom SwitchCaption | SwitchMaximize
-    for var in ['Caption', 'Maximize', 'TopMost']
-        exec 'com! -bar Switch'.var.' exec !s:tweak_'.var.
-                    \ '."VimTweak '.var.'"'
-    endfor
-    command! -bar SwitchAlpha if s:tweak_SetAlpha == 255|230SetAlpha
-                \ |else|255SetAlpha|endif
-    command! -bar -count=255 SetAlpha <count>VimTweak SetAlpha
-    map <F10> :<C-U>SwitchMaximize<CR>
-    imap <F10> <ESC><F10>a
-    map <F11> :<C-U>SwitchAlpha<CR>
-    imap <F11> <ESC><F11>a
-    map <F12> :<C-U>Darkroom!<CR>
-    imap <F12> <ESC><F12>a
-endif
-
 " AddTo, SoScript {{{3
 if exists("$VIMDIR")
 
@@ -731,18 +694,11 @@ map <M-k> <C-k>Z8
 map <M-h> <C-h>Z8
 map <M-l> <C-l>Z8
 
-" <leader># set buffer tabstop and sw and et
+" <leader>f# [Filetype]# set buffer tabstop and sw and et
 
-map <leader>1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
-map <leader>2 :<C-U>setl ts=4 sw=4 noet nu fdm=syntax fdc=2<CR>
-
-" <leader>a filter {{{3
-
-map <leader>a :!astyle -oO -snwpYHU --style=kr --mode=c<CR>
-
-" <leader>b ctrlp buffer list {{{3
-
-map <leader>b <leader>ib
+noremap [Filetype]1 :<C-U>setl ts=8 sw=4 et nu fdm=syntax fdc=2<CR>
+noremap [Filetype]2 :<C-U>setl ts=4 sw=0 sts=0 noet nu fdm=syntax fdc=2<CR>
+noremap [Filetype]3 :<C-U>setl ts=8 sw=2 sts=2 et nu fdm=syntax fdc=2<CR>
 
 " <leader>c cd to current file folder {{{3
 
@@ -750,46 +706,40 @@ map <leader>cd :<C-U>cd %:h<CR>
 map <leader>cw :<C-U>cd Y:/trunk/server<CR>
 map <leader>c1 :<C-U>call feedkeys(":\<lt>C-U>cd Y:/1.\<lt>Tab>", 't')<CR>
 
-" <leader>d diff get/put {{{3
+" <leader>c diff get/put {{{3
 
-map <leader>dd :<C-U>noh\|pcl\|ccl\|lcl<CR>
-map <leader>dg :diffget
-map <leader>dp :diffput
-map <leader>du :diffupdate
+map <leader>cx :<C-U>noh\|pcl\|ccl\|lcl<CR>
+map <leader>cg :diffget
+map <leader>cp :diffput
+map <leader>cf :diffupdate
 
-" <leader>e explorer invoke {{{3
+" <leader>f [Filetype] {{{3
 
-nmap <leader>ef :<C-U>vsp %:h<CR>
-nmap <leader>ep :<C-U>vsp $VIMDOR<CR>
-nmap <leader>es :<C-U>vsp $PRJDIR<CR>
-nmap <leader>ev :<C-U>vsp $VIM<CR>
-nmap <leader>ex :vsp .<CR>
-xmap <leader>ex "ey:vsp <C-R>e<CR>
+map <leader>f [Filetype]
+noremap [Filetype] :<C-U>set filetype<CR>
+noremap [Filetype]+ :<C-U>setf cpp<CR>
+noremap [Filetype]c :<C-U>setf c<CR>
+noremap [Filetype]C :<C-U>setf clojure<CR>
+noremap [Filetype]d :<C-U>setf dot<CR>
+noremap [Filetype]g :<C-U>setf go<CR>
+noremap [Filetype]h :<C-U>setf haskell<CR>
+noremap [Filetype]j :<C-U>setf java<CR>
+noremap [Filetype]l :<C-U>setf lua<CR>
+noremap [Filetype]L :<C-U>setf lisp<CR>
+noremap [Filetype]m :<C-U>setf markdown<CR>
+noremap [Filetype]M :<C-U>setf m4<CR>
+noremap [Filetype]P :<C-U>setf perl<CR>
+noremap [Filetype]p :<C-U>setf python<CR>
+noremap [Filetype]T :<C-U>setf tex<CR>
+noremap [Filetype]r :<C-U>setf rust<CR>
+noremap [Filetype]R :<C-U>setf rest<CR>
+noremap [Filetype]s :<C-U>setf scheme<CR>
+noremap [Filetype]T :<C-U>setf tcl<CR>
+noremap [Filetype]t :<C-U>setf text<CR>
+noremap [Filetype]v :<C-U>setf vim<CR>
 
-" <leader>f filetype settings {{{3
-map <leader>f+ :<C-U>setf cpp<CR>
-map <leader>fc :<C-U>setf c<CR>
-map <leader>fC :<C-U>setf clojure<CR>
-map <leader>fd :<C-U>setf dot<CR>
-map <leader>fg :<C-U>setf go<CR>
-map <leader>fh :<C-U>setf haskell<CR>
-map <leader>fj :<C-U>setf java<CR>
-map <leader>fl :<C-U>setf lua<CR>
-map <leader>fL :<C-U>setf lisp<CR>
-map <leader>fm :<C-U>setf markdown<CR>
-map <leader>fM :<C-U>setf m4<CR>
-map <leader>fP :<C-U>setf perl<CR>
-map <leader>fp :<C-U>setf python<CR>
-map <leader>fT :<C-U>setf tex<CR>
-map <leader>fr :<C-U>setf rust<CR>
-map <leader>fR :<C-U>setf rest<CR>
-map <leader>fs :<C-U>setf scheme<CR>
-map <leader>fT :<C-U>setf tcl<CR>
-map <leader>ft :<C-U>setf text<CR>
-map <leader>fv :<C-U>setf vim<CR>
-
-" <leader>g get syntax stack {{{3
-nmap<silent> <leader>g :echo ""<bar>for id in synstack(line('.'),col('.'))
+" <leader>cs get syntax stack {{{3
+nmap<silent> <leader>cs :echo ""<bar>for id in synstack(line('.'),col('.'))
             \\|echo synIDattr(id, "name")
             \\|endfor<CR>
 
@@ -804,29 +754,7 @@ nmap <leader>J <C-W>J
 nmap <leader>K <C-W>K
 nmap <leader>L <C-W>L
 
-" <leader>i ctrlp {{{3
-
-nnoremap <leader>ii :<C-U>CtrlP<CR>
-nnoremap <leader>ib :<C-U>CtrlPBuffer<CR>
-nnoremap <leader>ic :<C-U>CtrlPCurFile<CR>
-nnoremap <leader>ie :call <SID>tagsUnderCursor()<CR>
-nnoremap <leader>is :<C-U>cd Y:/trunk/server<BAR>CtrlP<CR>
-nnoremap <leader>it :<C-U>CtrlPTag<CR>
-nnoremap <leader>iu :<C-U>CtrlPMRU<CR>
-
-function! <SID>tagsUnderCursor()
-    try
-        let default_input_save = get(g:, 'ctrlp_default_input', '')
-        let g:ctrlp_default_input = expand('<cword>')
-        CtrlPBufTagAll
-    finally
-        if exists('default_input_save')
-            let g:ctrlp_default_input = default_input_save
-        endif
-    endtry
-endfunction
-
-" <leader>q quickfix error jumps {{{3
+" q quickfix error jumps {{{3
 
 map <leader>qj :<C-U>cn!<CR>
 map <leader>qk :<C-U>cp!<CR>
@@ -886,6 +814,105 @@ if has('eval')
     end
 end
 
+" g[1-9] Airline {{{3
+
+nmap g1 <Plug>AirlineSelectTab1
+nmap g2 <Plug>AirlineSelectTab2
+nmap g3 <Plug>AirlineSelectTab3
+nmap g4 <Plug>AirlineSelectTab4
+nmap g5 <Plug>AirlineSelectTab5
+nmap g6 <Plug>AirlineSelectTab6
+nmap g7 <Plug>AirlineSelectTab7
+nmap g8 <Plug>AirlineSelectTab8
+nmap g9 <Plug>AirlineSelectTab9
+nmap gT <Plug>AirlineSelectPrevTab
+nmap gt <Plug>AirlineSelectNextTab
+
+" <leader>m Mark {{{3
+
+map <leader>* <Plug>MarkSet
+map <leader>/ <Plug>MarkRegex
+map <leader>? <Plug>MarkSearchGroupNext
+nmap * <Plug>MarkSearchNext
+nmap # <Plug>MarkSearchPrev
+
+sunmap <leader>*| ounmap <leader>*
+sunmap <leader>/| ounmap <leader>/
+sunmap <leader>?| ounmap <leader>?
+
+" <leader>d [Denite] {{{3
+
+map <leader>d [Denite]
+noremap [Denite] :<C-U>Denite 
+noremap [Denite]d :<C-U>Denite file_mru<CR>
+noremap [Denite]b :<C-U>Denite buffer<CR>
+noremap [Denite]f :<C-U>Denite file<CR>
+noremap [Denite]a :<C-U>Denite directory_mru<CR>
+noremap [Denite]m :<C-U>Denite mark<CR>
+noremap [Denite]r :<C-U>Denite register<CR>
+noremap [Denite]y :<C-U>Denite neoyank<CR>
+noremap [Denite]l :<C-U>Denite line<CR>
+
+sunmap <leader>d| ounmap <leader>d
+sunmap [Denite]| ounmap [Denite]
+sunmap [Denite]d| ounmap [Denite]d
+sunmap [Denite]b| ounmap [Denite]b
+sunmap [Denite]f| ounmap [Denite]f
+sunmap [Denite]a| ounmap [Denite]a
+sunmap [Denite]m| ounmap [Denite]m
+sunmap [Denite]r| ounmap [Denite]r
+sunmap [Denite]y| ounmap [Denite]y
+sunmap [Denite]l| ounmap [Denite]l
+
+" <leader>y [YCM] {{{3
+
+map <leader>y [YCM]
+noremap [YCM] :<C-U>YcmCompleter 
+noremap <silent> [YCM]d :<C-U>YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+sunmap <leader>y| ounmap <leader>y
+sunmap [YCM]| ounmap [YCM]
+sunmap [YCM]d| ounmap [YCM]d
+
+" <leader>b [NERDTree] {{{3
+
+map <leader>b [NERDTree]
+noremap [NERDTree] <Nop>
+noremap <silent> [NERDTree]b :<C-U>NERDTreeToggle<CR>
+noremap <silent> [NERDTree]f :<C-U>NERDTree %:h<CR>
+noremap <silent> [NERDTree]p :<C-U>NERDTree $VIMDOR<CR>
+noremap <silent> [NERDTree]s :<C-U>NERDTree $PRJDIR<CR>
+noremap <silent> [NERDTree]v :<C-U>NERDTree $VIM<CR>
+nnoremap <silent> [NERDTree]x :<C-U>NERDTree .<CR>
+xnoremap <silent> [NERDTree]x "ey:NERDTree <C-R>e<CR>
+
+sunmap <leader>b| ounmap <leader>b
+sunmap [NERDTree]| ounmap [NERDTree]
+sunmap [NERDTree]b| ounmap [NERDTree]b
+sunmap [NERDTree]f| ounmap [NERDTree]f
+sunmap [NERDTree]p| ounmap [NERDTree]p
+sunmap [NERDTree]s| ounmap [NERDTree]s
+sunmap [NERDTree]v| ounmap [NERDTree]v
+
+" <leader>g [Git] {{{3
+
+map <leader>g [Git]
+noremap [Git] <Nop>
+noremap <silent> [Git]l :<C-U>Glog<CR>
+noremap <silent> [Git]d :<C-U>Gdiff<CR>
+noremap <silent> [Git]b :<C-U>Gblame<CR>
+
+sunmap <leader>g| ounmap <leader>g
+sunmap [Git]| ounmap [Git]
+sunmap [Git]l| ounmap [Git]l
+sunmap [Git]d| ounmap [Git]d
+sunmap [Git]b| ounmap [Git]b
+
+" <leader><CR> EasyAlign {{{3
+
+map <leader><CR> <Plug>(EasyAlign)
+sunmap <leader><CR>| ounmap <leader><CR>
+
 " }}}3
 
 " }}}2
@@ -910,10 +937,15 @@ Plug 'yianwillis/vimcdoc'       " chinese document
 "Plug 'mhinz/vim-signify'   " show difference
 Plug 'neomake/neomake'     " live lint/build
 "Plug 'metakirby5/codi.vim' " on-the-fly coding
-Plug 'Shougo/deol.nvim'
-"Plug 'luochen1990/rainbow'
+Plug 'Shougo/deol.nvim', { 'on': [ 'Deol', 'DeolCd', 'DeolEdit' ] }
+Plug 'Shougo/denite.nvim'
+Plug 'luochen1990/rainbow'
 Plug 'andymass/vim-matchup'
 Plug 'roman/golden-ratio'
+
+" denite sources
+Plug 'Shougo/neomru.vim'
+Plug 'Shougo/neoyank.vim'
 
 " textobj
 Plug 'junegunn/vim-easy-align'
@@ -927,17 +959,14 @@ Plug 'tpope/vim-surround'
 
 Plug 'Konfekt/FoldText'
 Plug 'Raimondi/delimitMate'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'dyng/ctrlsf.vim'
+Plug 'dyng/ctrlsf.vim', { 'on': 'CtrlSF' }
 Plug 'easymotion/vim-easymotion'
 Plug 'ervandew/supertab'
 Plug 'fidian/hexmode'
-Plug 'godlygeek/tabular'
-Plug 'mbbill/echofunc'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'scrooloose/nerdcommenter'
-Plug 'scrooloose/nerdtree'
-Plug 'terryma/vim-multiple-cursors'
+Plug 'scrooloose/nerdtree', { 'on': [ 'NERDTree', 'NERDTreeToggle' ] }
+Plug 'mg979/vim-visual-multi'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-fugitive'
@@ -945,7 +974,8 @@ Plug 'triglav/vim-visual-increment'
 Plug 'vim-airline/vim-airline'
 Plug 'Chiel92/vim-autoformat'
 
-Plug 'qingxbl/Mark--Karkat'
+Plug 'inkarkat/vim-ingo-library'
+Plug 'inkarkat/vim-mark'
 
 " Language-spec
 Plug 'OrangeT/vim-csharp', { 'for': 'csharp' }
@@ -963,7 +993,9 @@ Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
 "Plug 'thinca/vim-logcat'
 
 if glob(s:tprefix.'/_enableYouCompleteMe') != ''
-    Plug 'Valloric/YouCompleteMe'
+    Plug 'Valloric/YouCompleteMe', { 'for': [ 'c', 'cpp', 'csharp', 'python', 'go', 'rust', 'typescript', 'javascript', 'java' ] }
+    Plug 'tenfyzhong/CompleteParameter.vim', { 'for': [ 'c', 'cpp', 'csharp', 'python', 'go', 'rust', 'typescript', 'javascript', 'java' ] }
+    Plug 'Shougo/echodoc.vim', { 'for': [ 'c', 'cpp', 'csharp', 'python', 'go', 'rust', 'typescript', 'javascript', 'java' ] }
 endif
 
 
@@ -987,23 +1019,13 @@ let html_use_css = 1
 
 let g:airline_powerline_fonts = 1
 "let g:airline_symbols_ascii=1
+let g:airline_skip_empty_sections = 1
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#show_tab_type = 0
 let g:airline#extensions#tabline#tab_nr_type = 1
-let g:airline#extensions#tabline#buffer_nr_show = 1
-let g:airline#extensions#tabline#buffer_nr_format = '%s: '
-nmap <leader>1 <Plug>AirlineSelectTab1
-nmap <leader>2 <Plug>AirlineSelectTab2
-nmap <leader>3 <Plug>AirlineSelectTab3
-nmap <leader>4 <Plug>AirlineSelectTab4
-nmap <leader>5 <Plug>AirlineSelectTab5
-nmap <leader>6 <Plug>AirlineSelectTab6
-nmap <leader>7 <Plug>AirlineSelectTab7
-nmap <leader>8 <Plug>AirlineSelectTab8
-nmap <leader>9 <Plug>AirlineSelectTab9
-nmap <leader>- <Plug>AirlineSelectPrevTab
-nmap <leader>= <Plug>AirlineSelectNextTab
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#keymap_ignored_filetypes = [ 'denite', 'nerdtree' ]
 
 let g:airline_mode_map = {
             \ '__' : '-',
@@ -1023,23 +1045,6 @@ let g:airline_mode_map = {
 let g:airline_powerline_fonts = 1
 let g:airline_theme = 'base16_eighties'
 
-" ale {{{2
-
-"let g:ale_linters_explicit = 1
-let g:ale_completion_delay = 500
-let g:ale_echo_delay = 20
-let g:ale_lint_delay = 500
-let g:ale_echo_msg_format = '[%linter%] %code: %%s'
-let g:ale_lint_on_save = 1
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_insert_leave = 0
-let g:airline#extensions#ale#enabled = 1
- 
-let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
-let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
-let g:ale_c_cppcheck_options = ''
-let g:ale_cpp_cppcheck_options = ''
-
 " ctk {{{2
 
 amenu 1.246 ToolBar.BuiltIn25 :CC<CR>
@@ -1048,39 +1053,6 @@ amenu 1.247 ToolBar.BuiltIn15 :RUN<CR>
 tmenu ToolBar.BuiltIn15 CTK Run
 amenu 1.248 ToolBar.-sep5-1- <Nop>
 
-
-" ctrlp {{{2
-"
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.png,*.jpg,*.jpeg,*.gif " MacOSX/Linux
-let g:ctrlp_working_path_mode = 'ra'
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/].(git|hg|svn|rvm)$',
-    \ 'file': '\v.(exe|so|dll|zip|tar|tar.gz|pyc|beam)$',
-    \ }
-
-if executable('rg')
-    set grepprg=rg\ --vimgrep
-    let g:ctrlp_user_command = 'rg %s -g "!*.beam" -g "!*.html" -g "!*.prof_output" --files'
-
-elseif executable('ag')
-    " Use Ag over Grep
-    set grepprg=ag\ --nogroup\ --nocolor
-    " Use ag in CtrlP for listing files.
-    " let g:ctrlp_user_command = 'ag %s -l --nocolor -g "\\.[he]rl"'
-    " Ag is fast enough that CtrlP doesn't need to cache
-    " let g:ctrlp_use_caching = 0
-endif
-
-nmap <F1> :<C-U>CtrlPBuffer<CR>
-nmap <F2> :<C-U>CtrlPMRU<CR>
-nmap <F3> :<C-U>CtrlPTag<CR>
-nmap <F4> :<C-U>CtrlP<CR>
-
-imap <F1> <C-\><C-N><F1>
-imap <F2> <C-\><C-N><F2>
-imap <F3> <C-\><C-N><F3>
-imap <F4> <C-\><C-N><F4>
 
 " CtrlSF {{{2
 
@@ -1095,12 +1067,6 @@ let g:delimitMate_jump_expansion = 0
 
 
 " EasyAlign {{{2
-
-" Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
-vmap <Enter> <Plug>(EasyAlign)
-
-" Start interactive EasyAlign for a motion/text object (e.g. ,=ip)
-nmap <leader>a <Plug>(EasyAlign)
 
 let g:easy_align_delimiters = {
             \ 's': { 'pattern': '::' },
@@ -1189,35 +1155,6 @@ endfunction
 let g:indent_guides_guide_size=1
 
 
-" LeaderF {{{2
-
-let g:Lf_ShortcutF = '<c-p>'
-let g:Lf_ShortcutB = '<m-n>'
-"noremap <c-n> :LeaderfMru<cr>
-"noremap <m-p> :LeaderfFunction<cr>
-"noremap <m-n> :LeaderfBuffer<cr>
-"noremap <m-m> :LeaderfTag<cr>
-let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
- 
-let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
-let g:Lf_WorkingDirectoryMode = 'Ac'
-let g:Lf_WindowHeight = 0.30
-let g:Lf_ShowRelativePath = 0
-let g:Lf_HideHelp = 1
-let g:Lf_StlColorscheme = 'powerline'
- 
-let g:Lf_NormalMap = {
-    \ "File":   [["<ESC>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
-    \            ["<F6>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
-    \ "Buffer": [["<ESC>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
-    \            ["<F6>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
-    \ "Mru":    [["<ESC>", ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
-    \ "Tag":    [["<ESC>", ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
-    \ "Function":    [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
-    \ "Colorscheme":    [["<ESC>", ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
-    \ }
-
-
 " Lua {{{2
 
 if exists('$QUICK_V3_ROOT')
@@ -1238,21 +1175,6 @@ endif
 "let lua_complete_dynamic = 1
 let lua_complete_omni = 0
 
-
-
-" multiple-cursors  {{{2
-
-let g:multi_cursor_exit_from_insert_mode = 0
-let g:multi_cursor_exit_from_visual_mode = 0
-
-if has("mac")
-    function! Multiple_cursors_before()
-        let g:smartim_disable = 1
-    endfunction
-    function! Multiple_cursors_after()
-        unlet g:smartim_disable
-    endfunction
-end
 
 
 " neomake {{{2
@@ -1364,15 +1286,7 @@ endif
 
 " NERDTree {{{2
 
-nmap <leader>nn :NERDTreeToggle<CR>
-xmap <leader>nn :<C-U>NERDTreeToggle<CR>
-map <leader>nf :<C-U>NERDTree %:h<CR>
-map <leader>np :<C-U>NERDTree $VIMDOR<CR>
-map <leader>ns :<C-U>NERDTree $PRJDIR<CR>
-map <leader>nv :<C-U>NERDTree $VIM<CR>
-nmap <leader>nx :NERDTree .<CR>
-xmap <leader>nx "ey:NERDTree <C-R>e<CR>
-
+let NERDTreeBookmarksFile = s:tprefix.'/NERDTreeBookmarks'
 
 " perl {{{2
 
@@ -1387,32 +1301,22 @@ let g:rainbow_active = 1
 let g:surround_{char2nr("c")} = "/* \r */"
 
 
-" syntastic {{{2
-
-if exists(':SyntasticStatuslineFlag')
-    set statusline+=%#warningmsg#
-    set statusline+=%{SyntasticStatuslineFlag()}
-    set statusline+=%*
-endif
-let g:syntastic_cpp_compiler_options='-std=c++11'
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 2
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 1
-
-" vcscommand {{{2
-
-let g:VCSCommandMapPrefix = "<leader>vc"
-
 " zip {{{2
 let g:loaded_zipPlugin= 1
 let g:loaded_zip      = 1
 
-" }}}2
+" Denite.nvim {{{2
 
-" YouCompleteMe {{{2
-nmap <leader>g :YcmCompleter GoToDefinitionElseDeclaration<CR>
+let g:neomru#file_mru_path = s:tprefix.'/mru_file'
+let g:neomru#directory_mru_path = s:tprefix.'/mru_directory'
+let g:neoyank#file = s:tprefix.'/yankring.txt'
+call denite#custom#option('_', 'prompt', '❯')
+
+" Mark {{{2
+
+let g:mw_no_mappings = 1
+
+" }}}2
 
 endif
 
