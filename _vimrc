@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2334)
-" Last Change:  2018-10-19 23:42:54
+" Version:      0.5 (2368)
+" Last Change:  2019-01-10 01:00:32
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -106,7 +106,7 @@ if has("win32") " {{{2
     endif
 
     if has("directx")
-        "set renderoptions=type:directx,geom:1
+        set renderoptions=type:directx,geom:1
     endif
 
 elseif has('unix') " {{{2
@@ -405,6 +405,29 @@ if has('autocmd')
                     \|     let &l:foldmethod=w:last_fdm | unlet w:last_fdm
                     \| endif
 
+    augroup end
+
+    augroup NEOMAKE_ERL
+        au!
+
+        func! s:reg_tgame(path)
+            for fn in glob(a:path.'/*', 0, 1)
+                exec "au BufNewFile,BufRead "
+                            \ substitute(fn.'\server\**\*.[he]rl', '\\', '/', 'g')
+                            \ "let b:neomake_erlang_erlc_root='".fn."/server'" "|"
+                            \ "let b:neomake_erlang_erlc_flags=["
+                            \ "'-I', '".fn."/server']|echomsg 'setvar!'"
+            endfor
+        endfunc
+        if has('win32')
+            call s:reg_tgame("C:/Devel/Projects/tgame/versions")
+            call s:reg_tgame("Y:/Work")
+        elseif has('mac')
+            call s:reg_tgame("/Users/sw/Work/Code/tgame/versions")
+        else
+            call s:reg_tgame("/home/wx/Work")
+            call s:reg_tgame("/home/*/tgame/versions")
+        end
     augroup END
 endif
 " Generic commands {{{2
@@ -885,11 +908,9 @@ if exists(':Plug')
 Plug 'yianwillis/vimcdoc'       " chinese document
 "Plug 'w0rp/ale'            " live lint
 "Plug 'mhinz/vim-signify'   " show difference
-Plug 'starwing/neomake'     " live lint/build
+Plug 'neomake/neomake'     " live lint/build
 "Plug 'metakirby5/codi.vim' " on-the-fly coding
-if has("terminal")
-  Plug 'Shougo/deol.nvim'
-endif
+Plug 'Shougo/deol.nvim'
 "Plug 'luochen1990/rainbow'
 Plug 'andymass/vim-matchup'
 Plug 'roman/golden-ratio'
@@ -936,7 +957,7 @@ Plug 'leafo/moonscript-vim', { 'for': 'moonscript' }
 Plug 'raymond-w-ko/vim-lua-indent', { 'for': 'lua' }
 Plug 'tikhomirov/vim-glsl', { 'for': 'glsl' }
 Plug 'vim-erlang/vim-erlang-runtime', { 'for': 'erlang' }
-Plug 'wting/rust.vim', { 'for': 'rust' }
+Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'zah/nim.vim', { 'for': 'nim' }
 Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
 "Plug 'thinca/vim-logcat'
@@ -1254,6 +1275,93 @@ let g:neomake_info_sign = {'text': 'I>', 'texthl': 'NeomakeInfoSign'}
 
 endif
 
+if !exists('g:neomake_erlang_erlc_target_dir')
+    let g:neomake_erlang_erlc_target_dir = tempname()
+endif
+
+function! s:neomake_Erlang_GlobPaths() abort
+    " Find project root directory.
+    let root = get(b:, 'neomake_erlang_erlc_root',
+             \ get(g:, 'neomake_erlang_erlc_root'))
+    if empty(root)
+        let rebar_config = neomake#utils#FindGlobFile('rebar.config')
+        if !empty(rebar_config)
+            let root = fnamemodify(rebar_config, ':h')
+        else
+            " At least try with CWD
+            let root = getcwd()
+        endif
+    endif
+    let root = fnamemodify(root, ':p')
+    let build_dir = root . '_build'
+    let ebins = []
+    if isdirectory(build_dir)
+        " Pick the rebar3 profile to use
+        let default_profile = expand('%') =~# '_SUITE.erl$' ?  'test' : 'default'
+        let profile = get(b:, 'neomake_erlang_erlc_rebar3_profile', default_profile)
+        let ebins += neomake#compat#glob_list(build_dir . '/' . profile . '/lib/*/ebin')
+        let target_dir = build_dir . '/neomake'
+    else
+        let target_dir = get(b:, 'neomake_erlang_erlc_target_dir',
+                       \ get(g:, 'neomake_erlang_erlc_target_dir'))
+    endif
+    " If <root>/_build doesn't exist it might be a rebar2/erlang.mk project
+    if isdirectory(root . 'deps')
+        let ebins += neomake#compat#glob_list(root . 'deps/*/ebin')
+    endif
+    " Set g:neomake_erlang_erlc_extra_deps in a project-local .vimrc, e.g.:
+    "   let g:neomake_erlang_erlc_extra_deps = ['deps.local']
+    " Or just b:neomake_erlang_erlc_extra_deps in a specific buffer.
+    let extra_deps_dirs = get(b:, 'neomake_erlang_erlc_extra_deps',
+                        \ get(g:, 'neomake_erlang_erlc_extra_deps'))
+    if !empty(extra_deps_dirs)
+        for extra_deps in extra_deps_dirs
+            if extra_deps[-1] !=# '/'
+                let extra_deps .= '/'
+            endif
+            let ebins += neomake#compat#glob_list(extra_deps . '*/ebin')
+        endfor
+    endif
+    let args = ['-pa', 'ebin', '-I', 'include', '-I', 'src']
+    for ebin in ebins
+        let args += [ '-pa', ebin,
+                    \ '-I', substitute(ebin, 'ebin$', 'include', '') ]
+    endfor
+    let args += get(b:, 'neomake_erlang_erlc_flags',
+              \ get(g:, 'neomake_erlang_erlc_flags', []))
+    if !isdirectory(target_dir)
+        call mkdir(target_dir, 'p')
+    endif
+    let args += ['-o', target_dir]
+    return args
+endfunction
+
+function! s:neomake_Erlang_InitForJob(jobinfo) abort dict
+    let args = s:neomake_Erlang_GlobPaths()
+    echomsg string(args)
+    let self.args = args
+endfunction
+
+call neomake#config#set('ft.erlang.InitForJob',
+            \ function('s:neomake_Erlang_InitForJob'))
+
+
+" Neovim {{{2
+
+function! g:NvimGUISetting()
+    let g:gui_running = 1
+    if exists(':GuiFont')
+        GuiFont Monaco for Powerline:h16
+        let g:airline_powerline_fonts = 1
+        "GuiLinespace 8
+    endif
+    colors evening
+endfunction
+
+if has('nvim')
+    call NvimGUISetting()
+endif
+
 " NERDTree {{{2
 
 nmap <leader>nn :NERDTreeToggle<CR>
@@ -1269,6 +1377,10 @@ xmap <leader>nx "ey:NERDTree <C-R>e<CR>
 " perl {{{2
 
 let g:perl_fold = 1
+
+" rainbow
+
+let g:rainbow_active = 1
 
 " surround {{{2
 
