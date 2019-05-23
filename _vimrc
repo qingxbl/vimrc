@@ -1,8 +1,8 @@
 " ==========================================================
 " File Name:    vimrc
 " Author:       StarWing
-" Version:      0.5 (2537)
-" Last Change:  2019-02-09 00:30:11
+" Version:      0.5 (2408)
+" Last Change:  2019-05-14 10:13:11
 " Must After Vim 7.0 {{{1
 if v:version < 700
     finish
@@ -56,7 +56,6 @@ set whichwrap+=<,>,h,l
 set wildcharm=<C-Z>
 set wildmenu
 set shortmess=I
-set mouse=a
 set smartcase
 
 " new in Vim 7.3 {{{2
@@ -108,7 +107,7 @@ if has("win32") " {{{2
     endif
 
     if has("directx")
-        set renderoptions=type:directx,geom:1
+        "set renderoptions=type:directx,geom:1
     endif
 
 elseif has('unix') " {{{2
@@ -135,6 +134,11 @@ elseif has('unix') " {{{2
         execute "set <xRight>=\e[1;*C"
         execute "set <xLeft>=\e[1;*D"
     endif
+    se mouse=a
+    if &term =~ '^screen'
+        " tmux knows the extended mouse mode
+        set ttymouse=xterm2
+    endif
 endif " }}}2
 if g:gui_running " {{{2
     set co=120 lines=35
@@ -143,7 +147,12 @@ if g:gui_running " {{{2
         if has('win32')
             silent! set gfn=Consolas:h9:qDRAFT
         elseif has('mac')
-            set gfn=Monaco\ for\ Powerline:h14
+            if exists('&macligatures')
+                set macligatures
+                set gfn=FiraCode-Regular:h18
+            else
+                set gfn=Monaco\ for\ Powerline:h18
+            endif
         else
             "set gfn=Consolas\ 10 gfw=WenQuanYi\ Bitmap\ Song\ 10
             set gfn=DejaVu\ Sans\ Mono\ 9
@@ -371,7 +380,8 @@ if has('autocmd')
         au BufReadPost * if getfsize(expand('%')) < 50000 | syn sync fromstart | endif
         "au BufWritePre * let &backup = (getfsize(expand('%')) > 500000)
         au BufNewFile,BufRead *.vba set noml
-        au FileType clojure,dot,lua,haskell,m4,perl,python,ruby,scheme,tcl,vim,javascript,erlang
+        au FileType clojure,dot,lua,haskell,m4,perl,python,ruby,scheme,
+                    \tcl,vim,javascript,erlang,rust,elixir
                     \   if !exists('b:ft') || b:ft != &ft
                     \|      let b:ft = &ft
                     \|      set sw=4 ts=8 sts=4 nu et sta fdc=2 fo-=t
@@ -379,7 +389,7 @@ if has('autocmd')
         au FileType lua se sw=3 sts=3 ts=3 et
         au FileType lua let b:syntastic_checkers=['luacheck', 'lua']
         au FileType nim se sw=2 sts=2 ts=2 nu et fdm=marker fdc=2
-        au FileType erlang se sw=2 sts=2 fdm=marker fdc=2 ff=unix
+        au FileType erlang,elixir se sw=2 sts=2 fdm=marker fdc=2 ff=unix
         au FileType javascript se sw=2 sts=2 ts=2 et fdc=2 fdm=syntax
         au FileType cs se ai nu noet sw=4 sts=4 ts=4 fdc=2 fdm=syntax
         au FileType javascript if exists("*JavaScriptFold")
@@ -409,7 +419,7 @@ if has('autocmd')
                     \|     let &l:foldmethod=w:last_fdm | unlet w:last_fdm
                     \| endif
 
-    augroup end
+    augroup END
 
     augroup NEOMAKE_ERL
         au!
@@ -417,20 +427,31 @@ if has('autocmd')
         func! s:reg_tgame(path)
             for fn in glob(a:path.'/*', 0, 1)
                 exec "au BufNewFile,BufRead "
-                            \ substitute(fn.'\server\**\*.[he]rl', '\\', '/', 'g')
+                            \ substitute(fn.'/server/**/*.[he]rl', '\\', '/', 'g')
                             \ "let b:neomake_erlang_erlc_root='".fn."/server'" "|"
                             \ "let b:neomake_erlang_erlc_flags=["
-                            \ "'-I', '".fn."/server']|echomsg 'setvar!'"
+                            \ "'-I', '".fn."/server']"
+            endfor
+        endfunc
+        func! s:reg_im_erl(path)
+            for fn in glob(a:path.'/im-erlang/*/', 0, 1)
+                exec "au BufNewFile,BufRead "
+                            \ substitute(fn.'**/*.[he]rl', '\\', '/', 'g')
+                            \ "let b:neomake_erlang_erlc_root='".fn."' |"
+                            \ "let b:neomake_erlang_erlc_extra_deps="
+                            \ "[" "'".fn."/..', '".fn."/../im_common/deps/']"
             endfor
         endfunc
         if has('win32')
             call s:reg_tgame("C:/Devel/Projects/tgame/versions")
             call s:reg_tgame("Y:/Work")
+            call s:reg_im_erl("Y:/Work/Projects")
         elseif has('mac')
             call s:reg_tgame("/Users/sw/Work/Code/tgame/versions")
         else
-            call s:reg_tgame("/home/wx/Work")
             call s:reg_tgame("/home/*/tgame/versions")
+            call s:reg_im_erl("/home/*/Work/Projects")
+            call s:reg_im_erl("/opt/work")
         end
     augroup END
 endif
@@ -941,7 +962,7 @@ Plug 'Shougo/deol.nvim', { 'on': [ 'Deol', 'DeolCd', 'DeolEdit' ] }
 Plug 'Shougo/denite.nvim'
 Plug 'luochen1990/rainbow'
 Plug 'andymass/vim-matchup'
-Plug 'roman/golden-ratio'
+"Plug 'roman/golden-ratio'
 
 " denite sources
 Plug 'Shougo/neomru.vim'
@@ -990,6 +1011,7 @@ Plug 'vim-erlang/vim-erlang-runtime', { 'for': 'erlang' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'zah/nim.vim', { 'for': 'nim' }
 Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
+Plug 'elixir-editors/vim-elixir', { 'for': 'elixir' }
 "Plug 'thinca/vim-logcat'
 
 if glob(s:tprefix.'/_enableYouCompleteMe') != ''
@@ -1165,7 +1187,7 @@ if exists('$QUICK_V3_ROOT')
                    \ $LUA_PATH
 
     if has('lua')
-        lua package.path=vim.eval('g:lua_path')..';'..package.path
+        silent! lua package.path=vim.eval('g:lua_path')..';'..package.path
     endif
 endif
 
@@ -1201,7 +1223,7 @@ if !exists('g:neomake_erlang_erlc_target_dir')
     let g:neomake_erlang_erlc_target_dir = tempname()
 endif
 
-function! s:neomake_Erlang_GlobPaths() abort
+function! Neomake_Erlang_GlobPaths() abort
     " Find project root directory.
     let root = get(b:, 'neomake_erlang_erlc_root',
              \ get(g:, 'neomake_erlang_erlc_root'))
@@ -1259,12 +1281,11 @@ function! s:neomake_Erlang_GlobPaths() abort
 endfunction
 
 function! s:neomake_Erlang_InitForJob(jobinfo) abort dict
-    let args = s:neomake_Erlang_GlobPaths()
-    echomsg string(args)
+    let args = Neomake_Erlang_GlobPaths()
     let self.args = args
 endfunction
 
-call neomake#config#set('ft.erlang.InitForJob',
+silent!  call neomake#config#set('ft.erlang.InitForJob',
             \ function('s:neomake_Erlang_InitForJob'))
 
 
